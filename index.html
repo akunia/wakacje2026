@@ -282,7 +282,7 @@
       <span class="chip">🎻 <span data-i="music">Muzyka</span></span>
     </div>
     <h1 data-i="heroTitle"></h1>
-    <p data-i="heroLead"></p>
+    <p id="heroLeadP"></p>
     <p class="hint" data-i="heroHint"></p>
   </section>
 
@@ -421,6 +421,18 @@ const CHARS = [
   {id:"wojtek",emoji:"🚂", nm:{pl:"Wojtek",fr:"Wojtek"},     ro:{pl:"Kuzyn — mieszka w Gnieźnie",fr:"Le cousin — habite à Gniezno"}}
 ];
 
+/* Opis dostosowany do postaci / Description adaptée au personnage */
+const LEADS = {
+  paul: UI.heroLead,
+  tata: {pl:"Z Nicei ruszasz autem przez Alpy do Marktoberdorf, potem pociągiem po Wojtka do Gniezna — pierwszej stolicy Polski — a na koniec bajkowy zamek Neuschwanstein i powrót do domu. Kierowca i głowa wyprawy! 🚗",
+         fr:"Depuis Nice, tu pars en voiture par les Alpes jusqu'à Marktoberdorf, puis en train chercher Wojtek à Gniezno — première capitale de la Pologne —, avant le château de Neuschwanstein et le retour. Chauffeur et chef d'expédition ! 🚗"},
+  alice:{pl:"Razem z Tatą jedziesz autem z Nicei do Bawarii, pociągiem po kuzyna Wojtka do Gniezna, a potem bajkowy zamek Neuschwanstein i droga do domu. Wielka rodzinna przygoda! 🌸",
+         fr:"Avec Papa, tu pars en voiture de Nice vers la Bavière, en train chercher le cousin Wojtek à Gniezno, puis le château de Neuschwanstein et le retour. Une grande aventure de famille ! 🌸"},
+  wojtek:{pl:"Mieszkasz w Gnieźnie — pierwszej stolicy Polski! Tata i Alice przyjadą po Ciebie pociągiem, ruszycie do Bawarii na zamek Neuschwanstein, a stamtąd autem aż do Nicei. Dołączasz do wielkiej wyprawy! 🚂",
+          fr:"Tu habites à Gniezno — première capitale de la Pologne ! Papa et Alice viennent te chercher en train, direction la Bavière et le château de Neuschwanstein, puis la voiture jusqu'à Nice. Tu rejoins la grande aventure ! 🚂"},
+  katia:{pl:"Zostajesz w Nicei, żeby pracować 💙 — ale jesteś sercem tej wyprawy: trzymasz kciuki, śledzisz każdy etap i czekasz na wszystkich w domu, z najlepszymi historiami do wysłuchania.",
+         fr:"Tu restes à Nice pour travailler 💙 — mais tu es le cœur de cette aventure : tu croises les doigts, tu suis chaque étape et tu attends tout le monde à la maison, avec les meilleures histoires à écouter."}
+};
 /* Trasa każdej postaci (mapa pokazuje tylko jej etapy) / Itinéraire par personnage (la carte n'affiche que ses étapes) */
 const ROUTES = {
   paul:   ["paris","helsinki","kemi","night","munich","marktoberdorf","altenstadt","neuschwanstein","nice"],
@@ -909,12 +921,13 @@ function setLang(l){ LANG=l; localStorage.setItem("vy_lang",l);
   document.documentElement.lang=l;
   document.getElementById("lpl").classList.toggle("on",l==="pl");
   document.getElementById("lfr").classList.toggle("on",l==="fr");
-  renderStatic(); renderMap(); renderBadges(); updateHeroPill(); if(current) openStage(current,true);
+  renderStatic(); renderLead(); renderMap(); renderBadges(); updateHeroPill(); if(current) openStage(current,true);
 }
 function renderStatic(){
   document.querySelectorAll("[data-i]").forEach(el=>{ const k=el.getAttribute("data-i"); if(UI[k]) el.innerHTML=t(UI[k]); });
   renderCountdown();
 }
+function renderLead(){ const el=document.getElementById("heroLeadP"); if(el) el.innerHTML=t(LEADS[hero.id]||LEADS.paul); }
 function renderCountdown(){
   const start=new Date(2026,5,29), end=new Date(2026,6,11), now=new Date();
   const el=document.getElementById("cdtext");
@@ -1248,7 +1261,7 @@ function renderChars(){
       <div class="nm">${t(c.nm)}</div><div class="ro">${t(c.ro)}</div>
       <span class="up">${ph?t(UI.removePhoto):t(UI.uploadPhoto)}</span>`;
     avatarFill(d.querySelector(".ava"), c.id, c.emoji, {});
-    const choose=()=>{ hero={id:c.id}; localStorage.setItem("vy_hero",JSON.stringify(hero)); document.getElementById("ovChar").classList.remove("open"); renderChars(); renderMap(); renderBadges(); updateHeroPill(); startTravel(); };
+    const choose=()=>{ hero={id:c.id}; localStorage.setItem("vy_hero",JSON.stringify(hero)); document.getElementById("ovChar").classList.remove("open"); renderChars(); renderMap(); renderBadges(); updateHeroPill(); renderLead(); startTravel(); };
     d.onclick=choose;  /* cała karta klikalna / toute la carte cliquable */
     d.tabIndex=0; d.setAttribute("role","button"); d.setAttribute("aria-label", t(c.nm));
     d.onkeydown=(e)=>{ if((e.key==="Enter"||e.key===" ")&&e.target===d){ e.preventDefault(); choose(); } };
