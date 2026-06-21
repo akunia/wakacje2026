@@ -244,6 +244,16 @@
     .node{width:62px} .node .dot{width:42px;height:42px;font-size:1.15rem} .node .lbl{font-size:.58rem}
     .matchgrid{gap:9px} .hero .postmark{display:none}
   }
+  /* respect du réglage système "réduire les animations" */
+  @media (prefers-reduced-motion: reduce){
+    .routes path{animation:none}
+    .node.current .dot{animation:none}
+    .travel{transition:opacity .2s !important}
+    .modal{animation:none}
+    .toast{transition:opacity .2s}
+  }
+  .node:focus-visible,.tab:focus-visible,.char:focus-visible,.pill:focus-visible{outline:3px solid var(--ochre); outline-offset:2px}
+  .node .dot:focus-visible{outline:none}
 </style>
 </head>
 <body>
@@ -303,9 +313,9 @@
 
 <!-- Stage modal -->
 <div class="overlay" id="ov">
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
     <div class="top">
-      <button class="close" onclick="closeModal()">✕</button>
+      <button class="close" onclick="closeModal()" aria-label="Zamknij / Fermer">✕</button>
       <div class="ico" id="mIco">📍</div>
       <h2 id="mTitle"></h2>
       <div class="sub" id="mSub"></div>
@@ -326,11 +336,11 @@
 
 <!-- Character modal -->
 <div class="overlay" id="ovChar">
-  <div class="modal" style="width:min(620px,100%)">
+  <div class="modal" style="width:min(620px,100%)" role="dialog" aria-modal="true" aria-labelledby="charTitleH">
     <div class="top">
-      <button class="close" onclick="document.getElementById('ovChar').classList.remove('open')">✕</button>
+      <button class="close" onclick="document.getElementById('ovChar').classList.remove('open')" aria-label="Zamknij / Fermer">✕</button>
       <div class="ico">🦸</div>
-      <h2 data-i="charTitle">Wybierz swojego bohatera</h2>
+      <h2 id="charTitleH" data-i="charTitle">Wybierz swojego bohatera</h2>
       <div class="sub" data-i="charSub">Każdy wybiera postać i może wgrać zdjęcie</div>
     </div>
     <div class="tabbody">
@@ -867,17 +877,19 @@ const GAMES = {
 const EXTRA_GAMES = { kemi:["g_finland","g_titles","g_conduct"], marktoberdorf:["g_words","g_music"], gniezno:["g_geo","g_gniezno_extra"], neuschwanstein:["g_neusch"] };
 
 /* ============================== STATE ============================== */
+function safeParse(key, fb){ try{ const v=localStorage.getItem(key); return v? JSON.parse(v): fb; }catch(e){ console.warn("vy: localStorage uszkodzony / corrompu:", key); return fb; } }
 let LANG = localStorage.getItem("vy_lang") || "pl";
-let progress = JSON.parse(localStorage.getItem("vy_progress")||"{}");
-let earned = JSON.parse(localStorage.getItem("vy_badges")||"{}");
-let hero = JSON.parse(localStorage.getItem("vy_hero")||"null") || {id:"paul"};
-let photos = JSON.parse(localStorage.getItem("vy_photos")||"{}");
+let progress = safeParse("vy_progress", {});
+let earned = safeParse("vy_badges", {});
+let hero = safeParse("vy_hero", null) || {id:"paul"};
+let photos = safeParse("vy_photos", {});
 /* Po wgraniu zdjęć do folderu photos/ (paul.jpg, tata.jpg, …) zmień na true.
    Après avoir mis des photos dans photos/ (paul.jpg, tata.jpg, …), passe à true. */
 const USE_FOLDER_PHOTOS = false;
 let current = null;
 const t = (o)=> o ? (o[LANG]||o.pl||"") : "";
-const save = ()=>{ localStorage.setItem("vy_progress",JSON.stringify(progress)); localStorage.setItem("vy_badges",JSON.stringify(earned)); };
+const save = ()=>{ try{ localStorage.setItem("vy_progress",JSON.stringify(progress)); localStorage.setItem("vy_badges",JSON.stringify(earned)); }catch(e){} };
+function savePhotos(){ try{ localStorage.setItem("vy_photos",JSON.stringify(photos)); return true; }catch(e){ toast(LANG==="fr"?"⚠️ Stockage plein — photo non gardée":"⚠️ Brak miejsca — zdjęcie niezapisane"); return false; } }
 const MAIN = ["paris","helsinki","kemi","night","munich","marktoberdorf","altenstadt","neuschwanstein","nice"];
 const UNLOCK_DATE = new Date(2026,5,28); /* J-1 = 28.06.2026, dzień przed wyjazdem */
 const TRIP_START = new Date(2026,5,29), TRIP_END = new Date(2026,6,11);
@@ -939,6 +951,8 @@ function renderMap(){
     n.style.left=s.x+"%"; n.style.top=s.y+"%";
     n.innerHTML=`<div class="dot">${s.ico}</div><div class="lbl">${t(s.ml)}</div>`;
     n.onclick=()=>openStage(s.id);
+    n.tabIndex=0; n.setAttribute("role","button"); n.setAttribute("aria-label", t(s.title).replace(/<[^>]*>/g,""));
+    n.onkeydown=(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openStage(s.id); } };
     map.appendChild(n);
   });
   const prn = route || S.map(s=>s.id);
@@ -1032,14 +1046,16 @@ function openStage(id, keepTab){
   const games=gamesFor(id); const unlocked=gamesUnlocked();
   if(games.length) tabs.push(["pGame",(unlocked?"":"🔒 ")+t(UI.tabGame)]);
   tabs.forEach(([key,label])=>{ const b=document.createElement("div"); b.className="tab"; b.textContent=label;
-    b.onclick=()=>switchTab(key); b.dataset.k=key; tabsEl.appendChild(b); });
+    b.onclick=()=>switchTab(key); b.dataset.k=key; b.tabIndex=0; b.setAttribute("role","tab");
+    b.onkeydown=(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); switchTab(key); } };
+    tabsEl.appendChild(b); });
   if(!keepTab || !tabs.find(x=>x[0]===activeTab)) activeTab="pInfo";
   let info="";
   (s.info||[]).forEach(r=> info+=`<div class="kv"><div class="k">${t(r.k)}</div><div class="v">${t(r.v)}</div></div>`);
   if(s.todo&&s.todo.length){ info+=`<ul class="todo">`; s.todo.forEach(x=> info+=`<li>${t(x)}</li>`); info+=`</ul>`; }
   document.getElementById("pInfo").innerHTML=info||"—";
   let f="";
-  (s.facts||[]).forEach(x=>{ const src=x.s?` <a class="src" href="${x.s}" target="_blank" title="źródło / source">ⓘ</a>`:"";
+  (s.facts||[]).forEach(x=>{ const src=x.s?` <a class="src" href="${x.s}" target="_blank" rel="noopener noreferrer" title="źródło / source">ⓘ</a>`:"";
     f+=`<div class="fact"><span class="em">${x.e||"✨"}</span><div>${t(x)}${src}</div></div>`; });
   if(s.story){ f+=`<div class="story"><h4>📖 ${t(s.story.title)}</h4>${t(s.story)}</div>`; }
   document.getElementById("pFacts").innerHTML=f||"—";
@@ -1234,11 +1250,13 @@ function renderChars(){
     avatarFill(d.querySelector(".ava"), c.id, c.emoji, {});
     const choose=()=>{ hero={id:c.id}; localStorage.setItem("vy_hero",JSON.stringify(hero)); document.getElementById("ovChar").classList.remove("open"); renderChars(); renderMap(); renderBadges(); updateHeroPill(); startTravel(); };
     d.onclick=choose;  /* cała karta klikalna / toute la carte cliquable */
+    d.tabIndex=0; d.setAttribute("role","button"); d.setAttribute("aria-label", t(c.nm));
+    d.onkeydown=(e)=>{ if((e.key==="Enter"||e.key===" ")&&e.target===d){ e.preventDefault(); choose(); } };
     d.querySelector(".up").onclick=(e)=>{ e.stopPropagation();
-      if(photos[c.id]){ delete photos[c.id]; localStorage.setItem("vy_photos",JSON.stringify(photos)); renderChars(); moveHero(); updateHeroPill(); return; }
+      if(photos[c.id]){ delete photos[c.id]; savePhotos(); renderChars(); moveHero(); updateHeroPill(); return; }
       const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
       inp.onchange=()=>{ const f=inp.files[0]; if(!f)return; const rd=new FileReader();
-        rd.onload=()=>{ resizeImg(rd.result, 240, (data)=>{ photos[c.id]=data; localStorage.setItem("vy_photos",JSON.stringify(photos)); renderChars(); moveHero(); updateHeroPill(); }); };
+        rd.onload=()=>{ resizeImg(rd.result, 240, (data)=>{ photos[c.id]=data; if(savePhotos()){ renderChars(); moveHero(); updateHeroPill(); } else { delete photos[c.id]; } }); };
         rd.readAsDataURL(f); };
       inp.click();
     };
@@ -1259,6 +1277,9 @@ document.getElementById("charBtn").onclick=()=>{ renderChars(); document.getElem
 document.getElementById("dayBtn").onclick=()=>{ const id=todayStage(); if(id){ openStage(id); } else { toast(t(UI.todayMsgBefore)); openStage(MAIN.find(m=>!progress[m])||"paris"); } };
 document.getElementById("ov").onclick=(e)=>{ if(e.target.id==="ov") closeModal(); };
 document.getElementById("ovChar").onclick=(e)=>{ if(e.target.id==="ovChar") e.currentTarget.classList.remove("open"); };
+function kbActivate(el){ if(!el)return; el.tabIndex=0; el.setAttribute("role","button"); el.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); el.click(); } }); }
+kbActivate(document.getElementById("charBtn")); kbActivate(document.getElementById("dayBtn"));
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ document.getElementById("ov").classList.remove("open"); document.getElementById("ovChar").classList.remove("open"); current=null; } });
 let toastTimer; function toast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show");
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2600); }
 
@@ -1269,7 +1290,7 @@ if(DEV){ const p=document.createElement("div"); p.className="pill"; p.style.bord
   p.onclick=()=>{ DEV=false; localStorage.removeItem("vy_dev"); p.remove();
     try{ const u=new URL(location.href); u.searchParams.delete("dev"); history.replaceState(null,"",u.toString()); }catch(e){}
     renderMap(); if(current) openStage(current,true); toast(t(UI.devOff)); };
-  document.querySelector(".lang").insertAdjacentElement("beforebegin", p); }
+  document.querySelector(".lang").insertAdjacentElement("beforebegin", p); kbActivate(p); }
 /* Otwarcie startowe: wybór bohatera (pierwszy raz) lub etap dnia (w trakcie wyprawy)
    Ouverture initiale : choix du héros (1ʳᵉ fois) ou étape du jour (pendant le voyage) */
 (function(){
