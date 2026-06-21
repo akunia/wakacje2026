@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Wyjazd Życia Paul — interaktywny dziennik wielkiej wyprawy przez Europę (29.06–10.07.2026). Carnet de voyage interactif.">
+<meta property="og:title" content="Wyjazd Życia Paul 🎻🧭">
+<meta property="og:description" content="Interaktywna mapa wyprawy, ciekawostki i mini-gry — PL / FR.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23fbf4e1' stroke='%231f4e5f' stroke-width='4'/%3E%3Cg fill='%231f4e5f'%3E%3Cpolygon points='50,10 58,50 50,44 42,50'/%3E%3Cpolygon points='50,90 42,50 50,56 58,50'/%3E%3Cpolygon points='10,50 50,42 44,50 50,58'/%3E%3Cpolygon points='90,50 50,58 56,50 50,42'/%3E%3C/g%3E%3Cpolygon points='50,10 54,46 50,42 46,46' fill='%23b23a2e'/%3E%3C/svg%3E">
+<title>Wyjazd Życia Paul — Dziennik Wielkiej Wyprawy</title>
+<style>
+  :root{
+    --paper:#e9dcbf; --paper2:#f4ead0; --paper3:#fbf4e1;
+    --ink:#33271a; --ink2:#6b5840; --line:#b49a6a;
+    --sea:#1f4e5f; --sea2:#2d6c7e;
+    --stamp:#b23a2e; --stamp2:#8f2c22;
+    --ochre:#c8892b; --ochre2:#a06c1d;
+    --teal:#2a7f6f; --good:#3a6b34; --bad:#b23a2e;
+    --shadow:0 10px 26px rgba(60,40,15,.28);
+    --serif:Georgia,"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,"Times New Roman",serif;
+    --stampf:"Futura","Trebuchet MS","Gill Sans","Gill Sans MT",sans-serif;
+    --hand:"Bradley Hand","Snell Roundhand","Segoe Script","Comic Sans MS",cursive;
+    --r:6px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--serif); color:var(--ink); min-height:100vh; overflow-x:hidden; line-height:1.5;
+    background-color:var(--paper);
+    background-image:
+      radial-gradient(1100px 700px at 50% -10%, rgba(255,250,235,.55), transparent 60%),
+      radial-gradient(900px 900px at 110% 120%, rgba(31,78,95,.10), transparent 60%),
+      radial-gradient(900px 900px at -10% 110%, rgba(178,58,46,.07), transparent 60%);
+    -webkit-text-size-adjust:100%;
+  }
+  /* paper grain + faint vignette */
+  body::before{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; mix-blend-mode:multiply; opacity:.07;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  body::after{content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    box-shadow:inset 0 0 180px rgba(70,45,12,.30);}
+
+  a{color:var(--sea)}
+  .stampf{font-family:var(--stampf); text-transform:uppercase; letter-spacing:.12em}
+
+  /* Top bar — passport header */
+  header.bar{position:sticky; top:0; z-index:40; background:var(--paper2);
+    border-bottom:3px double var(--ink); box-shadow:0 6px 18px rgba(60,40,15,.18); padding:9px clamp(16px,3vw,56px);}
+  .bar-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; max-width:none; margin:0;}
+  .brand{display:flex; align-items:baseline; gap:8px; font-family:var(--serif); font-weight:700; color:var(--sea)}
+  .brand .logo{font-size:1.35rem}
+  .brand b{color:var(--stamp); font-style:italic}
+  .spacer{flex:1}
+  .pill{display:inline-flex; align-items:center; gap:6px; background:transparent; color:var(--ink);
+    border:1.5px solid var(--ink); padding:5px 11px; border-radius:3px; font-size:.78rem; cursor:pointer;
+    font-family:var(--stampf); text-transform:uppercase; letter-spacing:.08em; user-select:none; transition:.15s; text-decoration:none}
+  .pill:hover{background:var(--ink); color:var(--paper2)}
+  .lang{display:flex; border:1.5px solid var(--ink); border-radius:3px; overflow:hidden}
+  .lang button{background:transparent; color:var(--ink); border:0; padding:5px 11px; cursor:pointer; font-family:var(--stampf); font-weight:700; font-size:.78rem; letter-spacing:.08em}
+  .lang button.on{background:var(--stamp); color:#fff}
+  .count{font-variant-numeric:tabular-nums}
+  .progressbar{height:6px; background:rgba(51,39,26,.16); border-radius:0; overflow:hidden; max-width:none; margin:8px 0 0; border:1px solid var(--line)}
+  .progressbar > i{display:block; height:100%; width:0%; background:repeating-linear-gradient(90deg,var(--sea),var(--sea) 8px,var(--sea2) 8px,var(--sea2) 16px); transition:width .5s ease}
+
+  main{max-width:none; margin:0; padding:18px clamp(16px,3vw,56px) 60px}
+
+  /* Hero — postcard */
+  .hero{position:relative; padding:24px 22px; background:var(--paper3);
+    border:1px solid var(--line); box-shadow:var(--shadow); margin-bottom:22px; overflow:hidden}
+  .hero::before{content:""; position:absolute; inset:8px; border:2px double var(--sea); pointer-events:none; opacity:.5}
+  .hero .postmark{position:absolute; top:14px; right:14px; width:96px; height:96px; border:2px solid var(--stamp); border-radius:50%;
+    color:var(--stamp); display:grid; place-items:center; text-align:center; transform:rotate(-12deg); opacity:.55; font-family:var(--stampf);
+    text-transform:uppercase; letter-spacing:.06em; font-size:.55rem; line-height:1.25; padding:6px}
+  .hero .postmark b{font-size:.72rem}
+  .hero h1{margin:.15em 0 .3em; font-size:clamp(1.55rem,4.6vw,2.5rem); line-height:1.08; color:var(--sea); font-weight:700}
+  .hero h1 .acc{color:var(--stamp); font-style:italic}
+  .hero p{margin:.4em 0; color:var(--ink); max-width:62ch}
+  .hero .hint{color:var(--ink2); font-size:.92rem; font-style:italic}
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px}
+  .chip{font-family:var(--stampf); font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; padding:4px 9px;
+    background:transparent; border:1.5px dashed var(--ochre2); color:var(--ochre2)}
+
+  .section-title{display:flex; align-items:center; gap:12px; margin:30px 2px 14px; font-size:1.05rem; font-family:var(--stampf);
+    text-transform:uppercase; letter-spacing:.12em; color:var(--sea); font-weight:700}
+  .section-title .b{height:0; flex:1; border-top:2px dotted var(--line)}
+  .section-title .pill{cursor:default}
+
+  /* Map */
+  .map-wrap{position:relative; background:var(--paper2); border:1px solid var(--line); box-shadow:var(--shadow);}
+  .map-wrap::before{content:""; position:absolute; inset:9px; border:2px double var(--sea); pointer-events:none; z-index:4; opacity:.45}
+  .map{position:relative; width:100%; aspect-ratio:16/9; max-height:82vh; overflow:hidden;
+    background-image:
+      linear-gradient(rgba(31,78,95,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(31,78,95,.07) 1px, transparent 1px);
+    background-size:38px 38px;}
+  .compass{position:absolute; right:3%; bottom:5%; width:min(150px,22%); opacity:.13; z-index:2; pointer-events:none}
+  .map svg.routes{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1}
+  .node{position:absolute; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; gap:5px;
+    cursor:pointer; z-index:3; width:88px}
+  .node .dot{width:52px; height:52px; border-radius:50%; display:grid; place-items:center; font-size:1.45rem;
+    background:radial-gradient(circle at 36% 30%, #f6e7c2, var(--ochre)); border:2.5px solid var(--sea);
+    box-shadow:0 5px 10px rgba(60,40,15,.35); transition:transform .15s ease; position:relative}
+  .node:hover .dot{transform:scale(1.12) rotate(-3deg)}
+  .node .lbl{font-family:var(--stampf); font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; text-align:center; line-height:1.05;
+    color:var(--ink); background:rgba(251,244,225,.82); padding:2px 6px; border:1px solid var(--line); max-width:96px}
+  .node.done .dot{border-color:var(--good)}
+  .node.done .dot::after{content:"✓"; position:absolute; right:-7px; bottom:-7px; width:22px; height:22px; border-radius:50%;
+    background:var(--good); color:#fff; font-size:.85rem; font-weight:900; display:grid; place-items:center; border:2px solid var(--paper2); transform:rotate(-12deg)}
+  .node.current .dot{border-color:var(--stamp); animation:pulse 1.7s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(178,58,46,.5),0 5px 10px rgba(60,40,15,.35)}50%{box-shadow:0 0 0 11px rgba(178,58,46,0),0 5px 10px rgba(60,40,15,.35)}}
+  .node.branch .dot{border-style:dashed; background:radial-gradient(circle at 36% 30%, #f6e7c2, var(--teal))}
+  .hero-marker{position:absolute; transform:translate(-50%,-120%); z-index:5;
+    transition:left .8s cubic-bezier(.5,.05,.2,1), top .8s cubic-bezier(.5,.05,.2,1); pointer-events:none}
+  .hero-marker .pin{font-size:1.5rem; filter:drop-shadow(0 3px 3px rgba(60,40,15,.5)); display:block; text-align:center}
+  .hero-marker .ava{width:40px;height:40px;border-radius:50%;object-fit:cover;border:3px solid var(--stamp);box-shadow:0 4px 8px rgba(60,40,15,.5);background:#ddd; display:block}
+  .pillimg{width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:middle}
+  .pillava{display:inline-flex;align-items:center}
+  .travel{position:absolute; transform:translate(-50%,-50%); z-index:6; font-size:1.7rem; opacity:0;
+    filter:drop-shadow(0 3px 4px rgba(60,40,15,.55)); pointer-events:none}
+  .pl-intro{font-style:italic; color:var(--ink2); font-size:.88rem; margin:0 0 8px}
+  .pl-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:9px 0; border-bottom:1px dotted var(--line)}
+  .pl-row .pl-w{flex:1; min-width:150px; font-size:.92rem}
+  .pl-row .pl-w b{color:var(--sea)}
+  .pl-link{font-family:var(--stampf); text-transform:uppercase; letter-spacing:.05em; font-size:.66rem; padding:4px 9px; border:1.5px solid var(--ink); text-decoration:none; border-radius:4px; white-space:nowrap}
+  .pl-link.yt{background:var(--stamp); color:#fff; border-color:var(--stamp2)}
+  .pl-link.sp{background:var(--teal); color:#fff; border-color:#1f5f54}
+  .routes path{fill:none; stroke-width:2.4; stroke-linecap:round; stroke-dasharray:2 7; opacity:.9; animation:flow 2.8s linear infinite}
+  .routes path.main{stroke:var(--stamp)}
+  .routes path.branch{stroke:var(--teal); opacity:.7}
+  .routes path.active{stroke:var(--stamp); stroke-width:3.4; opacity:1}
+  .routes path.dim{stroke:var(--ink2); stroke-width:1.6; opacity:.15; animation:none}
+  .node.dim{opacity:.32; filter:grayscale(.8)}
+  .node.dim .lbl{opacity:.55}
+  @keyframes flow{to{stroke-dashoffset:-18}}
+  .map-legend{display:flex; gap:16px; flex-wrap:wrap; padding:11px 16px; font-size:.78rem; color:var(--ink2); border-top:1px solid var(--line); font-style:italic}
+  .map-legend span{display:inline-flex; align-items:center; gap:6px}
+  .dotlg{width:13px;height:13px;border-radius:50%;display:inline-block}
+
+  /* Badges — passport stamps */
+  .badges{display:grid; grid-template-columns:repeat(auto-fill,minmax(108px,1fr)); gap:14px 12px; padding:4px}
+  .badge{background:var(--paper3); border:2px solid var(--ink2); border-radius:8px; padding:12px 6px 9px; text-align:center;
+    position:relative; opacity:.5; filter:grayscale(.9); transition:.25s; box-shadow:inset 0 0 0 2px var(--paper3), inset 0 0 0 3px var(--ink2)}
+  .badges .badge:nth-child(3n){transform:rotate(-4deg)}
+  .badges .badge:nth-child(3n+1){transform:rotate(3deg)}
+  .badges .badge:nth-child(3n+2){transform:rotate(-1.5deg)}
+  .badge:hover{transform:rotate(0) scale(1.04)}
+  .badge.on{opacity:1; filter:none}
+  .badge.on{border-color:var(--stamp); box-shadow:inset 0 0 0 2px var(--paper3), inset 0 0 0 3px var(--stamp); color:var(--stamp)}
+  .badge.on:nth-child(2n){border-color:var(--sea); box-shadow:inset 0 0 0 2px var(--paper3), inset 0 0 0 3px var(--sea); color:var(--sea)}
+  .badge.on:nth-child(3n){border-color:var(--teal); box-shadow:inset 0 0 0 2px var(--paper3), inset 0 0 0 3px var(--teal); color:var(--teal)}
+  .badge .e{font-size:1.6rem; display:block; filter:grayscale(0)}
+  .badge .n{font-family:var(--stampf); text-transform:uppercase; letter-spacing:.04em; font-size:.6rem; margin-top:5px; line-height:1.15}
+
+  /* Modal — journal page */
+  .overlay{position:fixed; inset:0; z-index:60; background:rgba(40,28,12,.55); backdrop-filter:blur(2px);
+    display:none; align-items:flex-start; justify-content:center; padding:18px; overflow:auto}
+  .overlay.open{display:flex}
+  .modal{width:min(720px,100%); background:var(--paper3); border:1px solid var(--ink2); box-shadow:0 22px 60px rgba(40,25,5,.5);
+    margin:auto; overflow:hidden; animation:pop .25s ease; position:relative}
+  .modal::before{content:""; position:absolute; inset:7px; border:2px double var(--sea); pointer-events:none; opacity:.35; z-index:0}
+  @keyframes pop{from{transform:translateY(14px) scale(.98); opacity:0}to{transform:none; opacity:1}}
+  .modal .top{padding:18px 18px 4px; position:relative; z-index:1}
+  .modal .top .ico{font-size:2.1rem}
+  .modal h2{margin:.15em 0 .12em; font-size:1.35rem; color:var(--sea)}
+  .modal .sub{color:var(--ochre2); font-size:.82rem; font-family:var(--stampf); text-transform:uppercase; letter-spacing:.07em}
+  .close{position:absolute; top:12px; right:12px; width:32px; height:32px; border-radius:50%; border:2px solid var(--ink);
+    background:var(--paper2); color:var(--ink); font-size:1rem; cursor:pointer; z-index:2}
+  .tabs{display:flex; gap:5px; padding:10px 16px 0; flex-wrap:wrap; position:relative; z-index:1}
+  .tab{padding:7px 13px; background:var(--paper); border:1px solid var(--line); border-bottom:0;
+    cursor:pointer; font-size:.74rem; font-family:var(--stampf); text-transform:uppercase; letter-spacing:.06em; color:var(--ink2); border-radius:5px 5px 0 0}
+  .tab.on{background:var(--paper3); color:var(--sea); border-color:var(--ink2); font-weight:700}
+  .tabbody{padding:14px 18px 18px; min-height:120px; position:relative; z-index:1}
+  .pane{display:none} .pane.on{display:block; animation:fade .2s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  .kv{display:flex; gap:10px; padding:8px 0; border-bottom:1px dotted var(--line); font-size:.92rem}
+  .kv .k{min-width:118px; color:var(--ochre2); font-family:var(--stampf); text-transform:uppercase; letter-spacing:.04em; font-size:.72rem; padding-top:2px}
+  .kv .v{flex:1}
+  .ref{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:rgba(178,58,46,.12); color:var(--stamp); padding:1px 7px; border:1px solid rgba(178,58,46,.4); font-weight:700; letter-spacing:.04em}
+  .todo{margin:10px 0 0; padding:0; list-style:none}
+  .todo li{display:flex; gap:9px; padding:6px 0; font-size:.9rem; align-items:flex-start}
+  .todo li::before{content:"☐"; color:var(--stamp); font-size:1.05rem; line-height:1.2}
+
+  .fact{display:flex; gap:11px; padding:10px 0; border-bottom:1px dotted var(--line); font-size:.93rem; line-height:1.5}
+  .fact .em{font-size:1.25rem; line-height:1.25}
+  .fact b{color:var(--stamp2)}
+  .fact a.src{color:var(--sea); text-decoration:none; font-size:.78rem; opacity:.8; margin-left:3px}
+  .fact a.src:hover{opacity:1; text-decoration:underline}
+  .story{position:relative; background:var(--paper2); border:1px solid var(--line); padding:18px 16px 14px; margin-top:16px; font-size:.95rem; line-height:1.6}
+  .story::before{content:""; position:absolute; top:-11px; left:50%; transform:translateX(-50%) rotate(-2deg); width:120px; height:22px;
+    background:rgba(200,137,43,.45); border:1px dashed rgba(160,108,29,.6)}
+  .story h4{margin:.2em 0 .5em; color:var(--ochre2); font-family:var(--serif); font-style:italic; font-size:1.05rem}
+
+  /* Mini-games */
+  .game{margin-top:4px; margin-bottom:8px}
+  .game h4{margin:.3em 0 .6em; color:var(--sea); font-family:var(--stampf); text-transform:uppercase; letter-spacing:.06em; font-size:.85rem}
+  .q{background:var(--paper2); border:1px solid var(--line); padding:12px; margin-bottom:12px}
+  .q .qtext{font-weight:700; margin-bottom:9px; color:var(--ink)}
+  .opt{display:block; width:100%; text-align:left; padding:9px 12px; margin:6px 0; cursor:pointer;
+    background:var(--paper3); border:1px dashed var(--line); color:var(--ink); font-size:.92rem; font-family:var(--serif); transition:.15s}
+  .opt:hover:not(:disabled){background:#fff; border-color:var(--sea)}
+  .opt.correct{background:rgba(58,107,52,.18); border:1.5px solid var(--good); color:var(--good)}
+  .opt.wrong{background:rgba(178,58,46,.15); border:1.5px solid var(--bad); color:var(--bad)}
+  .opt:disabled{cursor:default}
+  .tf{display:flex; gap:8px; margin-top:6px}
+  .tf button{flex:1; padding:9px; border:1.5px solid var(--ink); background:var(--paper3); color:var(--ink); cursor:pointer; font-family:var(--stampf); text-transform:uppercase; letter-spacing:.06em; font-weight:700}
+  .feedback{font-size:.85rem; margin-top:7px; color:var(--ink2); font-style:italic}
+  .matchgrid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .matchcol{display:flex; flex-direction:column; gap:8px}
+  .mitem{padding:9px; border:1px solid var(--line); background:var(--paper3); cursor:pointer; font-size:.86rem; text-align:center; transition:.15s}
+  .mitem.sel{border:1.5px solid var(--ochre2); background:rgba(200,137,43,.18)}
+  .mitem.matched{border:1.5px solid var(--good); background:rgba(58,107,52,.16); cursor:default; opacity:.85}
+  .slider-game input[type=range]{width:100%; accent-color:var(--stamp)}
+  .slider-val{font-size:1.9rem; font-weight:700; text-align:center; color:var(--stamp); margin:6px 0; font-family:var(--serif)}
+  .btn{display:inline-block; padding:9px 16px; border:2px solid var(--ink); cursor:pointer; font-family:var(--stampf);
+    text-transform:uppercase; letter-spacing:.08em; font-weight:700; background:var(--ochre); color:var(--ink); font-size:.82rem; box-shadow:2px 2px 0 var(--ink)}
+  .btn:active{transform:translate(2px,2px); box-shadow:none}
+  .btn.gold{background:var(--stamp); color:#fff; border-color:var(--stamp2); box-shadow:2px 2px 0 var(--stamp2)}
+  .scorebox{margin-top:10px; padding:12px; text-align:center; background:var(--paper2); border:2px solid var(--good); color:var(--good); font-weight:700; font-family:var(--serif)}
+
+  .done-row{display:flex; gap:12px; align-items:center; padding:14px 18px; border-top:1px solid var(--line); flex-wrap:wrap; position:relative; z-index:1}
+  .done-row .badge-earn{font-size:.84rem; color:var(--ink2); font-style:italic}
+
+  /* Character select */
+  .charwrap{display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:14px}
+  .char{background:var(--paper2); border:1px solid var(--line); padding:14px 10px; text-align:center; cursor:pointer; transition:.18s; position:relative}
+  .char:hover{transform:translateY(-2px)}
+  .char.sel{border:2px solid var(--stamp); box-shadow:2px 2px 0 var(--stamp2)}
+  .char .ava{width:76px; height:76px; border-radius:50%; margin:0 auto 8px; display:grid; place-items:center; font-size:2.2rem;
+    background:radial-gradient(circle at 36% 30%, #f6e7c2, var(--ochre)); border:2.5px solid var(--sea); overflow:hidden}
+  .char .ava img{width:100%; height:100%; object-fit:cover}
+  .char .nm{font-weight:700; color:var(--sea)}
+  .char .ro{font-size:.74rem; color:var(--ink2); margin-top:2px; font-style:italic}
+  .char .up{margin-top:8px; font-family:var(--stampf); text-transform:uppercase; letter-spacing:.05em; font-size:.62rem; color:var(--sea); cursor:pointer; display:inline-block; border-bottom:1px dotted var(--sea)}
+  .hint{color:var(--ink2); font-size:.85rem; line-height:1.5; font-style:italic}
+
+  footer{max-width:none; margin:0; padding:14px clamp(16px,3vw,56px); color:var(--ink2); font-size:.82rem; text-align:center; font-style:italic; border-top:2px dotted var(--line)}
+  .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(40px) rotate(-2deg); z-index:90;
+    background:var(--paper3); color:var(--stamp); padding:11px 20px; border:2px solid var(--stamp);
+    font-family:var(--stampf); text-transform:uppercase; letter-spacing:.07em; font-weight:700; box-shadow:var(--shadow); opacity:0; transition:.35s; pointer-events:none; max-width:90vw; text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0) rotate(-2deg); opacity:1}
+  @media(max-width:560px){
+    .map{aspect-ratio:3/4; max-height:none}
+    .node{width:62px} .node .dot{width:42px;height:42px;font-size:1.15rem} .node .lbl{font-size:.58rem}
+    .matchgrid{gap:9px} .hero .postmark{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-row">
+    <div class="brand"><span class="logo">🧭</span><span data-i="brandA">Wyjazd Życia</span> <b data-i="brandB">Paul</b></div>
+    <div class="spacer"></div>
+    <div class="pill count" id="countdown">⏳ <span id="cdtext"></span></div>
+    <div class="pill" id="dayBtn">📅 <span data-i="todayBtn">Etap dnia</span></div>
+    <div class="pill" id="charBtn">🦸 <span data-i="hero">Bohater</span></div>
+    <div class="lang">
+      <button id="lpl" class="on" onclick="setLang('pl')">PL</button>
+      <button id="lfr" onclick="setLang('fr')">FR</button>
+    </div>
+  </div>
+  <div class="progressbar"><i id="prog"></i></div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="postmark"><div><b>2026</b><br><span data-i="pmark">WIELKA<br>WYPRAWA</span></div></div>
+    <div class="chips">
+      <span class="chip">29.06 – 10.07.2026</span>
+      <span class="chip">🇫🇷 🇫🇮 🇩🇪 🇵🇱</span>
+      <span class="chip">🎻 <span data-i="music">Muzyka</span></span>
+    </div>
+    <h1 data-i="heroTitle"></h1>
+    <p data-i="heroLead"></p>
+    <p class="hint" data-i="heroHint"></p>
+  </section>
+
+  <div class="section-title"><span>🗺️ <span data-i="mapTitle">Mapa wyprawy</span></span><span class="b"></span></div>
+  <div class="map-wrap">
+    <div class="map" id="map">
+      <svg class="compass" viewBox="0 0 100 100" aria-hidden="true">
+        <g fill="none" stroke="#1f4e5f" stroke-width="1.2"><circle cx="50" cy="50" r="40"/><circle cx="50" cy="50" r="31"/></g>
+        <g fill="#1f4e5f"><polygon points="50,6 57,50 50,45 43,50"/><polygon points="50,94 43,50 50,55 57,50"/><polygon points="6,50 50,43 45,50 50,57"/><polygon points="94,50 50,57 55,50 50,43"/></g>
+        <g fill="#b23a2e"><polygon points="50,6 53,48 50,45 47,48"/></g>
+      </svg>
+      <svg class="routes" id="paths" viewBox="0 0 100 69" preserveAspectRatio="none"></svg>
+      <div class="hero-marker" id="heroMarker"><span class="pin">📍</span></div>
+      <div class="travel" id="travelIcon"></div>
+    </div>
+    <div class="map-legend">
+      <span id="routeWho" style="font-style:normal;font-weight:bold;color:var(--sea)"></span>
+      <span><i class="dotlg" style="background:var(--stamp)"></i><span data-i="lgCurrent">aktualny etap</span></span>
+      <span><i class="dotlg" style="background:var(--good)"></i><span data-i="lgDone">zaliczony</span></span>
+      <span id="lgBranchItem"><i class="dotlg" style="border:2px dashed var(--teal);background:transparent"></i><span data-i="lgBranch">wątek rodzinny</span></span>
+      <span data-i="lgTap">☞ kliknij pieczęć, aby otworzyć etap</span>
+    </div>
+  </div>
+
+  <div class="section-title"><span>🏅 <span data-i="badgesTitle">Pieczątki w paszporcie</span></span><span class="b"></span><span class="pill" id="badgeCount"></span></div>
+  <div class="badges" id="badges"></div>
+</main>
+
+<!-- Stage modal -->
+<div class="overlay" id="ov">
+  <div class="modal" id="modal">
+    <div class="top">
+      <button class="close" onclick="closeModal()">✕</button>
+      <div class="ico" id="mIco">📍</div>
+      <h2 id="mTitle"></h2>
+      <div class="sub" id="mSub"></div>
+    </div>
+    <div class="tabs" id="mTabs"></div>
+    <div class="tabbody">
+      <div class="pane" id="pInfo"></div>
+      <div class="pane" id="pFacts"></div>
+      <div class="pane" id="pPlay"></div>
+      <div class="pane" id="pGame"></div>
+    </div>
+    <div class="done-row">
+      <button class="btn gold" id="doneBtn">✓ <span data-i="markDone">Zaliczam ten etap!</span></button>
+      <span class="badge-earn" id="badgeEarn"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Character modal -->
+<div class="overlay" id="ovChar">
+  <div class="modal" style="width:min(620px,100%)">
+    <div class="top">
+      <button class="close" onclick="document.getElementById('ovChar').classList.remove('open')">✕</button>
+      <div class="ico">🦸</div>
+      <h2 data-i="charTitle">Wybierz swojego bohatera</h2>
+      <div class="sub" data-i="charSub">Każdy wybiera postać i może wgrać zdjęcie</div>
+    </div>
+    <div class="tabbody">
+      <div class="charwrap" id="charWrap"></div>
+      <p class="hint" style="margin-top:14px" data-i="charHint"></p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<footer><span data-i="footer"></span></footer>
+
+<script>
+/* ============================== I18N (UI) ============================== */
+const UI = {
+  brandA:{pl:"Wyjazd Życia",fr:"Le Voyage"},
+  brandB:{pl:"Paul",fr:"de Paul"},
+  pmark:{pl:"WIELKA<br>WYPRAWA",fr:"GRANDE<br>AVENTURE"},
+  hero:{pl:"Bohater",fr:"Héros"},
+  print:{pl:"Druk",fr:"Imprimer"},
+  music:{pl:"Muzyka",fr:"Musique"},
+  mapTitle:{pl:"Mapa wyprawy",fr:"La carte de l'aventure"},
+  badgesTitle:{pl:"Pieczątki w paszporcie",fr:"Tampons du passeport"},
+  lgCurrent:{pl:"aktualny etap",fr:"étape en cours"},
+  lgDone:{pl:"zaliczony",fr:"validée"},
+  lgBranch:{pl:"wątek rodzinny (Tata, Alice, Wojtek)",fr:"branche famille (Papa, Alice, Wojtek)"},
+  lgTap:{pl:"☞ kliknij pieczęć, aby otworzyć etap",fr:"☞ clique sur un sceau pour ouvrir l'étape"},
+  routeWho:{pl:"Trasa:",fr:"Itinéraire :"},
+  markDone:{pl:"Zaliczam ten etap!",fr:"Je valide cette étape !"},
+  charTitle:{pl:"Wybierz swojego bohatera",fr:"Choisis ton personnage"},
+  charSub:{pl:"Każdy wybiera postać i może wgrać zdjęcie",fr:"Chacun choisit son perso et ajoute sa photo"},
+  charHint:{pl:"Zdjęcie zostaje tylko na tym urządzeniu (w przeglądarce). Kliknij „Wgraj zdjęcie”, żeby spersonalizować awatar.",
+            fr:"La photo reste uniquement sur cet appareil (dans le navigateur). Clique sur « Ajouter une photo » pour personnaliser l'avatar."},
+  heroTitle:{pl:"Dziennik Wielkiej Wyprawy Paul 🎻",fr:"Le carnet de la Grande Aventure de Paul 🎻"},
+  heroLead:{pl:"Od Paryża, przez lapońskie słońce o północy, aż po niemieckie bajkowe zamki. Odwiedzisz 3 kraje (Francja, Finlandia, Niemcy), a rodzinny wątek wyprawy sięgnie aż do Gniezna — pierwszej stolicy Polski. Samoloty, pociągi nocne, dwa staże muzyczne i zamek rodem z Disneya.",
+            fr:"De Paris au soleil de minuit de Laponie jusqu'aux châteaux de conte de fées de Bavière. Tu traverses 3 pays (France, Finlande, Allemagne), et la branche familiale du voyage pousse jusqu'à Gniezno — la première capitale de la Pologne. Avions, trains de nuit, deux stages de musique et un château digne de Disney."},
+  heroHint:{pl:"☞ Klikaj pieczęcie na mapie, czytaj ciekawostki, graj w mini-gry i zbieraj pieczątki w paszporcie. Przełącznik PL/FR u góry — pokaż kolegom!",
+            fr:"☞ Clique sur les sceaux de la carte, lis les anecdotes, joue aux mini-jeux et collectionne les tampons du passeport. Bouton PL/FR en haut — montre-le à tes amis !"},
+  footer:{pl:"Zrobione z ❤️ dla Rodziny • fakty sprawdzone i podlinkowane • miłej podróży!",
+          fr:"Fait avec ❤️ pour la Famille • faits vérifiés et sourcés • bon voyage !"},
+  tabInfo:{pl:"📋 Info",fr:"📋 Infos"},
+  tabFacts:{pl:"✨ Ciekawostki",fr:"✨ Anecdotes"},
+  tabPlaylist:{pl:"🎵 Repertuar",fr:"🎵 Répertoire"},
+  tabGame:{pl:"🎮 Gra",fr:"🎮 Jeu"},
+  playlistIntro:{pl:"Posłuchaj utworów, które będziesz grać na stażu (linki otwierają wyszukiwarkę):",fr:"Écoute les œuvres que tu vas jouer au stage (les liens ouvrent une recherche) :"},
+  listenYT:{pl:"▶ YouTube",fr:"▶ YouTube"},
+  listenSP:{pl:"♫ Spotify",fr:"♫ Spotify"},
+  todayBtn:{pl:"Etap dnia",fr:"Étape du jour"},
+  todayMsgBefore:{pl:"Wyprawa jeszcze przed Wami — pokazuję najbliższy etap!",fr:"Le voyage n'a pas encore commencé — voici la prochaine étape !"},
+  devOff:{pl:"Tryb DEV wyłączony — gry znów zablokowane do 28.06",fr:"Mode DEV désactivé — jeux re-verrouillés jusqu'au 28.06"},
+  cdGo:{pl:"Wyjazd trwa! 🎉",fr:"Le voyage a commencé ! 🎉"},
+  cdDone:{pl:"Po wyprawie 🏁",fr:"Voyage terminé 🏁"},
+  cdDays:{pl:"dni do wyjazdu",fr:"jours avant le départ"},
+  alreadyDone:{pl:"Etap zaliczony ✓",fr:"Étape validée ✓"},
+  doneToast:{pl:"Etap zaliczony! Pieczątka zdobyta 🏅",fr:"Étape validée ! Tampon obtenu 🏅"},
+  badgeGet:{pl:"Za ten etap zdobywasz pieczątkę:",fr:"Pour cette étape tu gagnes le tampon :"},
+  noGame:{pl:"Ten etap nie ma mini-gry — po prostu się nim ciesz!",fr:"Pas de mini-jeu ici — profite simplement de l'étape !"},
+  gamesLockedTitle:{pl:"🔒 Gry odblokują się tuż przed wyjazdem!",fr:"🔒 Les jeux se débloquent juste avant le départ !"},
+  gamesLockedMsg:{pl:"Mini-gry będą dostępne od <b>28.06.2026</b> (dzień przed startem wyprawy). Wpadnij wtedy — czeka mnóstwo zabawy! 🎮",fr:"Les mini-jeux seront disponibles dès le <b>28.06.2026</b> (la veille du départ). Reviens à ce moment-là — plein de fun t'attend ! 🎮"},
+  score:{pl:"Wynik",fr:"Score"},
+  perfect:{pl:"Brawo! Komplet! 🌟",fr:"Bravo ! Sans faute ! 🌟"},
+  check:{pl:"Sprawdź",fr:"Vérifier"},
+  diffOff:{pl:"Pomyłka o",fr:"Écart de"},
+  spot:{pl:"Trafione! 🎯",fr:"Dans le mille ! 🎯"},
+  badgeCount:{pl:"pieczątek",fr:"tampons"},
+  trueW:{pl:"Prawda",fr:"Vrai"},
+  falseW:{pl:"Fałsz",fr:"Faux"},
+  uploadPhoto:{pl:"📸 Wgraj zdjęcie",fr:"📸 Ajouter une photo"},
+  removePhoto:{pl:"usuń zdjęcie",fr:"retirer la photo"}
+};
+
+/* ============================== CHARACTERS ============================== */
+const CHARS = [
+  {id:"paul",  emoji:"🎻", nm:{pl:"Paul",fr:"Paul"},        ro:{pl:"Bohater — skrzypce, fortepian, dyrygentura",fr:"Le héros — violon, piano, direction"}},
+  {id:"tata",  emoji:"🚗", nm:{pl:"Tata (Grzegorz)",fr:"Papa (Grzegorz)"}, ro:{pl:"Kierowca z Nicei",fr:"Le chauffeur depuis Nice"}},
+  {id:"katia", emoji:"💙", nm:{pl:"Mama (Katia)",fr:"Maman (Katia)"}, ro:{pl:"Zostaje w Nicei (praca)",fr:"Reste à Nice (travail)"}},
+  {id:"alice", emoji:"🌸", nm:{pl:"Alice",fr:"Alice"},       ro:{pl:"Siostra Paula",fr:"La sœur de Paul"}},
+  {id:"wojtek",emoji:"🚂", nm:{pl:"Wojtek",fr:"Wojtek"},     ro:{pl:"Kuzyn — mieszka w Gnieźnie",fr:"Le cousin — habite à Gniezno"}}
+];
+
+/* Trasa każdej postaci (mapa pokazuje tylko jej etapy) / Itinéraire par personnage (la carte n'affiche que ses étapes) */
+const ROUTES = {
+  paul:   ["paris","helsinki","kemi","night","munich","marktoberdorf","altenstadt","neuschwanstein","nice"],
+  tata:   ["carfamily","marktoberdorf","poznan","gniezno","marktoberdorf","altenstadt","neuschwanstein","nice"],
+  alice:  ["carfamily","marktoberdorf","poznan","gniezno","marktoberdorf","altenstadt","neuschwanstein","nice"],
+  wojtek: ["gniezno","poznan","marktoberdorf","altenstadt","neuschwanstein","nice"],
+  katia:  ["nice"]
+  /* gosc / brak wpisu => pełna mapa / pas d'entrée => carte complète */
+};
+/* Środek transportu na każdym odcinku / Moyen de transport par segment */
+const TRANSPORT = {
+  "paris>helsinki":"✈️","helsinki>kemi":"✈️","kemi>night":"🚂","night>munich":"✈️",
+  "munich>marktoberdorf":"🚆","marktoberdorf>altenstadt":"🚗","altenstadt>neuschwanstein":"🚗","neuschwanstein>nice":"🚗",
+  "carfamily>marktoberdorf":"🚗","marktoberdorf>poznan":"🚆","poznan>gniezno":"🚆","gniezno>marktoberdorf":"🚆",
+  "gniezno>poznan":"🚆","poznan>marktoberdorf":"🚆"
+};
+function transportFor(a,b){ return TRANSPORT[a+">"+b] || TRANSPORT[b+">"+a] || "🧭"; }
+
+/* ============================== STAGES ============================== */
+const S = [
+ {
+  id:"paris", x:8, y:50, ico:"✈️", branch:false, ml:{pl:"Paryż",fr:"Paris"},
+  title:{pl:"Start: Paryż ✈️",fr:"Départ : Paris ✈️"},
+  sub:{pl:"29.06.2026 • Lot do Finlandii",fr:"29.06.2026 • Vol vers la Finlande"},
+  info:[
+    {k:{pl:"Lot 1",fr:"Vol 1"}, v:{pl:"Finnair AY1582 — CDG (T2B) 07:15 → Helsinki 11:00",fr:"Finnair AY1582 — CDG (T2B) 07:15 → Helsinki 11:00"}},
+    {k:{pl:"Lot 2",fr:"Vol 2"}, v:{pl:"Finnair AY517 — Helsinki 14:00 → Kemi 15:35",fr:"Finnair AY517 — Helsinki 14:00 → Kemi 15:35"}},
+    {k:{pl:"Rezerwacja",fr:"Réservation"}, v:{pl:"<span class='ref'>(prywatne / privé)</span> — Paul",fr:"<span class='ref'>(prywatne / privé)</span> — Paul"}},
+    {k:{pl:"Klasa",fr:"Classe"}, v:{pl:"Ekonomiczna • łącznie 7 h 20 min",fr:"Économique • 7 h 20 min au total"}}
+  ],
+  todo:[ {pl:"Terminal 2B na CDG — bądź wcześnie!",fr:"Terminal 2B à CDG — sois en avance !"},
+         {pl:"Instrument trzymaj w bagażu podręcznym 🎻",fr:"Garde l'instrument en cabine 🎻"} ],
+  facts:[
+    {e:"🌍", pl:"To początek wielkiej wyprawy! Przejedziesz przez <b>3 kraje</b>: Francję 🇫🇷, Finlandię 🇫🇮 i Niemcy 🇩🇪 (a rodzinny wątek dotrze też do Polski 🇵🇱).", fr:"C'est le début de la grande aventure ! Tu traverseras <b>3 pays</b> : France 🇫🇷, Finlande 🇫🇮 et Allemagne 🇩🇪 (et la branche famille ira aussi en Pologne 🇵🇱)."},
+    {e:"📏", pl:"Z Paryża do Kemi jest w linii prostej około <b>2 261 km</b> — z południa Europy na sam jej skraj!", fr:"De Paris à Kemi, environ <b>2 261 km</b> à vol d'oiseau — du sud de l'Europe à son extrême nord !", s:"https://www.flights.com/lp/flights/kem/par/kemi-to-paris"},
+    {e:"⏱️", pl:"Cała podróż samolotem Paryż → Kemi (z przesiadką) trwa około <b>8 godzin</b>.", fr:"Le trajet complet Paris → Kemi (avec escale) dure environ <b>8 heures</b>."}
+  ],
+  story:{title:{pl:"Wielka wyprawa się zaczyna!",fr:"La grande aventure commence !"},
+    pl:"Plecak spakowany, instrument w dłoni — przed Tobą 12 dni, które zapamiętasz na całe życie. Lecisz na sam koniec Europy, prawie pod koło podbiegunowe, gdzie latem słońce prawie nie zachodzi. Gotowy? 🚀",
+    fr:"Sac bouclé, instrument à la main — 12 jours t'attendent, de ceux qu'on n'oublie jamais. Direction le bout de l'Europe, presque sous le cercle polaire, là où l'été le soleil ne se couche presque pas. Prêt ? 🚀"},
+  badges:["b_air"], game:"g_paris"
+ },
+ {
+  id:"helsinki", x:58, y:18, ico:"🛬", branch:false, ml:{pl:"Helsinki",fr:"Helsinki"},
+  title:{pl:"Helsinki — przesiadka",fr:"Helsinki — escale"},
+  sub:{pl:"29.06 • 3 h przerwy",fr:"29.06 • 3 h de transit"},
+  info:[
+    {k:{pl:"Przesiadka",fr:"Correspondance"}, v:{pl:"11:00 → 14:00 (3 godziny) na lotnisku Helsinki-Vantaa (HEL)",fr:"11:00 → 14:00 (3 heures) à l'aéroport Helsinki-Vantaa (HEL)"}}
+  ],
+  todo:[ {pl:"Sprawdź bramkę do Kemi i zjedz coś ciepłego.",fr:"Vérifie la porte pour Kemi et prends un repas chaud."} ],
+  facts:[
+    {e:"🚇", pl:"Na lotnisku w Helsinkach jest stacja pociągu <b>30 metrów pod ziemią</b> — do centrum dojedziesz w ok. 30 minut.", fr:"L'aéroport d'Helsinki a une gare <b>30 mètres sous terre</b> — le centre-ville est à env. 30 minutes.", s:"https://www.finavia.fi/en/newsroom/2024/ten-facts-about-helsinki-airport-things-you-probably-didnt-know-before"},
+    {e:"🧖", pl:"Bo to Finlandia — na lotnisku jest nawet <b>sauna</b>!", fr:"Parce que c'est la Finlande — il y a même un <b>sauna</b> à l'aéroport !", s:"https://www.finavia.fi/en/newsroom/2024/ten-facts-about-helsinki-airport-things-you-probably-didnt-know-before"},
+    {e:"🌲", pl:"Sufit hali odlotów zrobiono z <b>500 unikalnych kawałków fińskiego świerku</b>.", fr:"Le plafond du hall des départs est fait de <b>500 morceaux uniques d'épicéa finlandais</b>.", s:"https://www.finavia.fi/en/newsroom/2024/ten-facts-about-helsinki-airport-things-you-probably-didnt-know-before"},
+    {e:"✈️", pl:"Przez to lotnisko przechodzi aż <b>90% ruchu międzynarodowego</b> Finlandii.", fr:"Cet aéroport concentre <b>90 % du trafic international</b> de la Finlande.", s:"https://en.wikipedia.org/wiki/Helsinki_Airport"}
+  ],
+  story:null, badges:["b_fin"], game:"g_helsinki"
+ },
+ {
+  id:"kemi", x:73, y:8, ico:"🎼", branch:false, ml:{pl:"Kemi",fr:"Kemi"},
+  title:{pl:"Kemi / Keminmaa — Laponia 🌙",fr:"Kemi / Keminmaa — Laponie 🌙"},
+  sub:{pl:"29.06 – 03.07 • Staż Panula Academy",fr:"29.06 – 03.07 • Stage Panula Academy"},
+  info:[
+    {k:{pl:"Przylot",fr:"Arrivée"}, v:{pl:"Kemi (KEM) 15:35",fr:"Kemi (KEM) 15:35"}},
+    {k:{pl:"Organizator",fr:"Organisateur"}, v:{pl:"<b>Panula Academy</b> — kurs „Pohjanranta 2”, 28.6–2.7.2026, z Northern Star Chamber Orchestra",fr:"<b>Panula Academy</b> — cours « Pohjanranta 2 », 28.6–2.7.2026, avec le Northern Star Chamber Orchestra"}},
+    {k:{pl:"Koncerty",fr:"Concerts"}, v:{pl:"Dwa: w Pohjanranta i w szwedzkiej Haparandzie",fr:"Deux : à Pohjanranta et à Haparanda (Suède)"}},
+    {k:{pl:"Soliści",fr:"Solistes"}, v:{pl:"Alli Mankkinen (wiolonczela), Ann-Sofie Ailovuo (sopran)",fr:"Alli Mankkinen (violoncelle), Ann-Sofie Ailovuo (soprano)"}},
+    {k:{pl:"Hotel",fr:"Hôtel"}, v:{pl:"Spa Hotel Pohjanranta — Keminmaa (Laponia)",fr:"Spa Hotel Pohjanranta — Keminmaa (Laponia)"}},
+    {k:{pl:"Dojazd",fr:"Trajet"}, v:{pl:"Z lotniska <b>Uberem</b> do hotelu",fr:"De l'aéroport en <b>Uber</b> jusqu'à l'hôtel"}},
+    {k:{pl:"Zapisy",fr:"Inscription"}, v:{pl:"info@panula-academy.com",fr:"info@panula-academy.com"}},
+    {k:{pl:"Wyjazd",fr:"Départ"}, v:{pl:"Z Pohjanranta 03.07",fr:"De Pohjanranta le 03.07"}}
+  ],
+  todo:[
+    {pl:"W Kemi weź <b>Ubera</b> do hotelu — spróbuj podzielić koszt z kimś, kto też jedzie na staż.",fr:"À Kemi, prends un <b>Uber</b> jusqu'à l'hôtel — essaie de partager les frais avec un autre stagiaire."},
+    {pl:"Zapytaj o wspólny transport <b>przed lotem do Kemi</b> (zwłaszcza osoby z instrumentami 🎻).",fr:"Demande pour un transport partagé <b>avant le vol pour Kemi</b> (surtout ceux qui ont un instrument 🎻)."},
+    {pl:"Repertuar: Grieg (Holberg op. 40), Schumann (Koncert wiolonczelowy op. 129), Sibelius, Kuula, Madetoja, Hannikainen.",fr:"Répertoire : Grieg (Holberg op. 40), Schumann (Concerto pour violoncelle op. 129), Sibelius, Kuula, Madetoja, Hannikainen."}
+  ],
+  facts:[
+    {e:"🌞", pl:"Pod koniec czerwca dzień w Kemi trwa <b>22–23 godziny</b>! 29.06 słońce wschodzi ~01:56 i zachodzi ~00:53 — można grać nuty o północy bez latarki.", fr:"Fin juin, le jour à Kemi dure <b>22 à 23 heures</b> ! Le 29.06 le soleil se lève vers 01:56 et se couche vers 00:53 — on peut lire ses partitions à minuit sans lampe.", s:"https://dateandtime.info/citysunrisesunset.php?id=653281"},
+    {e:"🧭", pl:"Kemi leży na 65°44′ N — tylko ok. <b>92 km od koła podbiegunowego</b>. Prawie Arktyka!", fr:"Kemi est à 65°44′ N — à seulement ~<b>92 km du cercle polaire</b>. Presque l'Arctique !", s:"https://en.wikipedia.org/wiki/Kemi"},
+    {e:"🎼", pl:"Kurs prowadzi <b>Panula Academy</b> — szkoła legendarnego fińskiego dyrygenta <b>Jormy Panuli</b>, u którego uczyli się m.in. Esa-Pekka Salonen i Klaus Mäkelä.", fr:"Le stage est mené par la <b>Panula Academy</b> — l'école du légendaire chef finlandais <b>Jorma Panula</b>, professeur entre autres d'Esa-Pekka Salonen et Klaus Mäkelä.", s:"https://www.panula-academy.com/workshops/"},
+    {e:"🎯", pl:"Toivo Kuula (autor „Aamulaulu”) był <b>pierwszym uczniem kompozycji Sibeliusa</b>. Jego nazwisko po fińsku znaczy „kula/pocisk” — i tragicznie zginął właśnie od kuli, w wieku 34 lat.", fr:"Toivo Kuula (auteur de « Aamulaulu ») fut le <b>premier élève de composition de Sibelius</b>. Son nom signifie « balle » en finnois — et il mourut tragiquement d'une balle, à 34 ans.", s:"https://en.wikipedia.org/wiki/Toivo_Kuula"},
+    {e:"🧹", pl:"Leevi Madetoja (autor „Itkisit joskus”) jako chłopiec <b>zamiatał ulice i pracował w tartaku</b>, a został autorem „opery narodowej” Finlandii.", fr:"Leevi Madetoja (auteur de « Itkisit joskus ») fut enfant <b>balayeur de rues et ouvrier en scierie</b>, avant de composer « l'opéra national » de la Finlande.", s:"https://en.wikipedia.org/wiki/Leevi_Madetoja"},
+    {e:"🕐", pl:"Dwa koncerty zagrasz po dwóch stronach granicy: w fińskim Pohjanranta i w szwedzkiej Haparandzie. Finlandia jest o godzinę do przodu — w tej okolicy można świętować <b>Nowy Rok dwa razy</b>!", fr:"Tu joueras deux concerts de part et d'autre de la frontière : à Pohjanranta (Finlande) et à Haparanda (Suède). La Finlande a 1 h d'avance — dans ce coin, on peut fêter le <b>Nouvel An deux fois</b> !", s:"https://haparandatornio.com/area-guide/"},
+    {e:"🎻", pl:"Schumann napisał swój Koncert wiolonczelowy w ~2 tygodnie, ale… <b>nigdy nie usłyszał go na żywo</b> — prawykonanie odbyło się 4 lata po jego śmierci.", fr:"Schumann a écrit son Concerto pour violoncelle en ~2 semaines, mais… <b>ne l'a jamais entendu de son vivant</b> — créé 4 ans après sa mort.", s:"https://en.wikipedia.org/wiki/Cello_Concerto_(Schumann)"},
+    {e:"🇫🇮", pl:"Jean Sibelius to <b>fiński bohater narodowy</b>; jego „Finlandia” stała się nieoficjalnym hymnem kraju.", fr:"Jean Sibelius est un <b>héros national finlandais</b> ; sa « Finlandia » est devenue l'hymne officieux du pays.", s:"https://finland.fi/arts-culture/finlandia-by-jean-sibelius/"},
+    {e:"😊", pl:"Finlandia to <b>najszczęśliwszy kraj świata</b> — już ósmy rok z rzędu.", fr:"La Finlande est <b>le pays le plus heureux du monde</b> — pour la 8ᵉ année consécutive.", s:"https://finland.fi/life-society/eight-years-in-a-row-finland-remains-in-first-place-in-world-happiness-report-other-nordics-in/"},
+    {e:"🛶", pl:"Finlandia ma ponad <b>188 000 jezior</b> i ponad <b>2 miliony saun</b> (kultura sauny jest na liście UNESCO!).", fr:"La Finlande compte plus de <b>188 000 lacs</b> et plus de <b>2 millions de saunas</b> (la culture du sauna est à l'UNESCO !).", s:"https://www.visitfinland.com/en/articles/the-relaxation-routine-all-finns-know/"}
+  ],
+  story:{title:{pl:"Koncert o północy 🌙",fr:"Concert à minuit 🌙"},
+    pl:"Wyobraź sobie: kończysz koncert, wychodzisz na zewnątrz o północy — a na dworze jasno jak w dzień. To „słońce o północy”. Niektórzy turyści śpią w opaskach na oczy, bo organizm nie wie, kiedy jest noc! A Ty zagrasz po dwóch stronach granicy fińsko-szwedzkiej.",
+    fr:"Imagine : tu finis ton concert, tu sors à minuit — et il fait jour comme en plein après-midi. C'est le « soleil de minuit ». Certains touristes dorment avec un masque sur les yeux, leur corps ne sait plus quand c'est la nuit ! Et toi, tu joueras de part et d'autre de la frontière finno-suédoise."},
+  playlist:[
+    {c:"Edvard Grieg", w:{pl:"Suita „Z czasów Holberga” op. 40",fr:"Suite « Holberg » op. 40"}, q:"Grieg Holberg Suite op 40 string orchestra"},
+    {c:"Robert Schumann", w:{pl:"Koncert wiolonczelowy a-moll op. 129",fr:"Concerto pour violoncelle en la mineur op. 129"}, q:"Schumann Cello Concerto A minor Op 129"},
+    {c:"Jean Sibelius", w:{pl:"Romans C-dur op. 42",fr:"Romance en ut majeur op. 42"}, q:"Sibelius Romance in C major Op 42"},
+    {c:"Jean Sibelius", w:{pl:"Impromptu na orkiestrę smyczkową (op. 5)",fr:"Impromptu pour orchestre à cordes (op. 5)"}, q:"Sibelius Impromptu string orchestra Op 5"},
+    {c:"Toivo Kuula", w:{pl:"Aamulaulu (Pieśń poranna)",fr:"Aamulaulu (Chant du matin)"}, q:"Toivo Kuula Aamulaulu"},
+    {c:"Leevi Madetoja", w:{pl:"Itkisit joskus",fr:"Itkisit joskus"}, q:"Madetoja Itkisit joskus"},
+    {c:"Hannikainen", w:{pl:"Rauha (Pokój)",fr:"Rauha (La paix)"}, q:"Hannikainen Rauha Eino Leino"},
+    {c:"trad.", w:{pl:"Silloin minä itkin (fińska pieśń ludowa)",fr:"Silloin minä itkin (chant trad. finlandais)"}, q:"Silloin minä itkin finnish folk song"}
+  ],
+  badges:["b_arctic","b_violin","b_sun"], game:"g_finland"
+ },
+ {
+  id:"night", x:66, y:32, ico:"🚂", branch:false, ml:{pl:"Pociąg → Helsinki",fr:"Train → Helsinki"},
+  title:{pl:"Nocny pociąg Kemi → Helsinki",fr:"Train de nuit Kemi → Helsinki"},
+  sub:{pl:"03.07 19:24 → 04.07 05:41",fr:"03.07 19:24 → 04.07 05:41"},
+  info:[
+    {k:{pl:"Pociąg",fr:"Train"}, v:{pl:"Nocny pociąg <b>266</b>: Kemi → Tikkurila (Vantaa), 03.07 19:24 → 04.07 05:41",fr:"Train de nuit <b>266</b> : Kemi → Tikkurila (Vantaa), 03.07 19:24 → 04.07 05:41"}},
+    {k:{pl:"Potem",fr:"Ensuite"}, v:{pl:"Pociąg podmiejski I: Tikkurila → Helsinki Airport, 05:56 → 06:03",fr:"Train de banlieue I : Tikkurila → Helsinki Airport, 05:56 → 06:03"}},
+    {k:{pl:"Rezerwacja",fr:"Réservation"}, v:{pl:"ref <span class='ref'>(prywatne / privé)</span>",fr:"réf <span class='ref'>(prywatne / privé)</span>"}}
+  ],
+  todo:[ {pl:"Ustaw budzik — przesiadka w Tikkurila jest wcześnie rano!",fr:"Mets une alarme — la correspondance à Tikkurila est tôt le matin !"} ],
+  facts:[
+    {e:"🎅", pl:"Fińskie nocne pociągi to słynny <b>„Santa Claus Express”</b>, jadący aż do Rovaniemi — oficjalnego domu Świętego Mikołaja.", fr:"Les trains de nuit finlandais, c'est le fameux <b>« Santa Claus Express »</b>, qui va jusqu'à Rovaniemi — le domicile officiel du Père Noël.", s:"https://www.vr.fi/en/santa-claus-express"},
+    {e:"🛏️", pl:"VR ma <b>dwupiętrowe wagony sypialne</b>; w przedziałach na górnym piętrze jest własny prysznic i WC.", fr:"VR a des <b>voitures-lits à deux étages</b> ; les compartiments du haut ont leur propre douche et WC.", s:"https://www.vr.fi/en/night-trains"},
+    {e:"🚗", pl:"Możesz przewieźć <b>własny samochód</b> tym pociągiem (miejsce dla auta od 39 €)!", fr:"Tu peux embarquer <b>ta propre voiture</b> dans ce train (place voiture à partir de 39 €) !", s:"https://www.vr.fi/en/night-trains"},
+    {e:"🍳", pl:"W pociągu jest wagon restauracyjny, a śniadanie dowiozą Ci prosto do przedziału.", fr:"Il y a un wagon-restaurant, et le petit-déjeuner est servi directement dans ton compartiment.", s:"https://www.vr.fi/en/santa-claus-express"}
+  ],
+  story:{title:{pl:"Hotel na kółkach",fr:"Un hôtel sur rails"},
+    pl:"Zasypiasz na dalekiej północy, a budzisz się prawie w Helsinkach — przez całą noc pociąg wiezie Cię przez całą Finlandię. Trochę jak teleportacja, tylko z poduszką i kołderką.",
+    fr:"Tu t'endors dans le grand nord et tu te réveilles presque à Helsinki — toute la nuit, le train te traverse la Finlande entière. Une sorte de téléportation, mais avec oreiller et couette."},
+  badges:["b_night"], game:"g_night"
+ },
+ {
+  id:"munich", x:58, y:48, ico:"🥨", branch:false, ml:{pl:"Monachium",fr:"Munich"},
+  title:{pl:"Monachium → Marktoberdorf",fr:"Munich → Marktoberdorf"},
+  sub:{pl:"04.07 • Lot + pociągi Bayern-Ticket",fr:"04.07 • Vol + trains Bayern-Ticket"},
+  info:[
+    {k:{pl:"Lot",fr:"Vol"}, v:{pl:"Finnair AY1401 — Helsinki 08:00 → Monachium (T1) 09:35 • 2 h 35 min",fr:"Finnair AY1401 — Helsinki 08:00 → Munich (T1) 09:35 • 2 h 35 min"}},
+    {k:{pl:"Rezerwacja",fr:"Réservation"}, v:{pl:"<span class='ref'>(prywatne / privé)</span> — Paul",fr:"<span class='ref'>(prywatne / privé)</span> — Paul"}},
+    {k:{pl:"Pociąg",fr:"Train"}, v:{pl:"Bayern-Ticket (2. kl.): lotnisko MUC → Marktoberdorf, 10:24 → 12:59 (S8 + RB74 + RB77, 2 przesiadki)",fr:"Bayern-Ticket (2ᵉ cl.) : aéroport MUC → Marktoberdorf, 10:24 → 12:59 (S8 + RB74 + RB77, 2 correspondances)"}}
+  ],
+  todo:[ {pl:"Po wylądowaniu od razu kieruj się na stację S-Bahn (S8) pod lotniskiem.",fr:"Après l'atterrissage, file vers la gare S-Bahn (S8) sous l'aéroport."} ],
+  facts:[
+    {e:"🕛", pl:"Na Marienplatz w Monachium codziennie w południe gra <b>Glockenspiel</b> — zegar z ruchomymi figurkami.", fr:"Sur la Marienplatz à Munich, le <b>Glockenspiel</b> (horloge à automates) s'anime chaque jour à midi.", s:"https://www.munich.travel/en/topics/urban-districts/munich"},
+    {e:"🏄", pl:"W centrum Monachium ludzie <b>surfują na fali rzeki Eisbach</b> — przez cały rok, nawet zimą!", fr:"En plein centre de Munich, des gens <b>surfent sur la vague de l'Eisbach</b> — toute l'année, même en hiver !", s:"https://www.munich.travel/en/pois/sports-leisure/eisbachwelle"},
+    {e:"🍺", pl:"<b>Oktoberfest</b> to największa ludowa impreza świata (ponad 6 mln gości) — a pierwszy odbył się w 1810 r. na… ślub następcy tronu!", fr:"L'<b>Oktoberfest</b> est la plus grande fête populaire du monde (plus de 6 M de visiteurs) — la première eut lieu en 1810 pour… un mariage royal !", s:"https://www.deutschland.de/en/oktoberfest"},
+    {e:"🚗", pl:"W Monachium ma siedzibę <b>BMW</b> (i wiele innych marek z Bawarii: Audi, Adidas, Siemens).", fr:"Munich abrite le siège de <b>BMW</b> (et d'autres marques bavaroises : Audi, Adidas, Siemens).", s:"https://www.deutschland.de/en/topic/life/bavaria-culture-federal-state"}
+  ],
+  story:null, badges:["b_bayern"], game:"g_bavaria"
+ },
+ {
+  id:"marktoberdorf", x:68, y:64, ico:"🎻", branch:false, ml:{pl:"Marktoberdorf",fr:"Marktoberdorf"},
+  title:{pl:"Marktoberdorf — Music Week 🎻",fr:"Marktoberdorf — Music Week 🎻"},
+  sub:{pl:"04 – 08.07 • „Music Week in Bavaria”",fr:"04 – 08.07 • « Music Week in Bavaria »"},
+  info:[
+    {k:{pl:"Wydarzenie",fr:"Événement"}, v:{pl:"<b>„Music Week in Bavaria”</b> (organizator ArtForFuture, dyr. art. Evgeny Sinaiski)",fr:"<b>« Music Week in Bavaria »</b> (organisé par ArtForFuture, dir. art. Evgeny Sinaiski)"}},
+    {k:{pl:"Termin",fr:"Dates"}, v:{pl:"Kurs 02–08.07.2026 • dołączasz od 04.07 (po przylocie)",fr:"Stage 02–08.07.2026 • tu rejoins dès le 04.07 (après ton vol)"}},
+    {k:{pl:"Miejsce",fr:"Lieu"}, v:{pl:"Bayerische Musikakademie, Kurfürstenstraße 19, 87616 Marktoberdorf (zabytkowy zamek)",fr:"Bayerische Musikakademie, Kurfürstenstraße 19, 87616 Marktoberdorf (château historique)"}},
+    {k:{pl:"Profesorowie",fr:"Professeurs"}, v:{pl:"Boris Garlitsky (skrzypce), Till Fellner (fortepian), Leonid Gorokhov (wiolonczela)",fr:"Boris Garlitsky (violon), Till Fellner (piano), Leonid Gorokhov (violoncelle)"}},
+    {k:{pl:"Zapisy",fr:"Inscription"}, v:{pl:"artforfuture.org • info@modakademie.de",fr:"artforfuture.org • info@modakademie.de"}}
+  ],
+  todo:[
+    {pl:"Odpisz organizatorom: preferencje co do <b>godzin przyjazdu/wyjazdu</b>.",fr:"Réponds aux organisateurs : préférences sur les <b>horaires d'arrivée/départ</b>."},
+    {pl:"Podaj swój <b>repertuar/program</b> na masterclassy.",fr:"Indique ton <b>répertoire/programme</b> pour les masterclasses."},
+    {pl:"Podaj <b>preferencje żywieniowe</b> (mięso / wegetariańskie / wegańskie).",fr:"Indique tes <b>préférences alimentaires</b> (viande / végétarien / végan)."},
+    {pl:"Podaj <b>numer telefonu (z kierunkowym) do WhatsApp</b> i preferencje pokoju.",fr:"Donne ton <b>numéro de téléphone (indicatif compris) pour WhatsApp</b> et tes préférences de chambre."},
+    {pl:"Jeśli ktoś z rodziny towarzyszy — <b>zarejestruj każdą osobę osobno</b> (z pełnym imieniem i nazwiskiem).",fr:"Si de la famille t'accompagne — <b>inscris chaque personne séparément</b> (nom et prénom complets)."}
+  ],
+  facts:[
+    {e:"🎻", pl:"Masterclassy prowadzą wybitni pedagodzy: <b>Boris Garlitsky</b> (skrzypce), <b>Till Fellner</b> (fortepian) i <b>Leonid Gorokhov</b> (wiolonczela).", fr:"Les masterclasses sont assurées par d'éminents professeurs : <b>Boris Garlitsky</b> (violon), <b>Till Fellner</b> (piano) et <b>Leonid Gorokhov</b> (violoncelle).", s:"https://www.artforfuture.org/masterkurse/music-week-in-bavaria"},
+    {e:"🏰", pl:"Akademia mieści się w <b>zabytkowym zamku</b> (Bayerische Musikakademie) — mieszkasz i ćwiczysz w prawdziwym pałacu!", fr:"L'académie est installée dans un <b>château historique</b> (Bayerische Musikakademie) — tu loges et répètes dans un vrai palais !", s:"https://www.musikakademien.de/akademien/bayerische-musikakademie-marktoberdorf"},
+    {e:"⛰️", pl:"Marktoberdorf leży na <b>758 m n.p.m.</b> — to <b>najwyżej położone miasto powiatowe w całych Niemczech</b>!", fr:"Marktoberdorf est à <b>758 m d'altitude</b> — c'est <b>la ville chef-lieu la plus haute de toute l'Allemagne</b> !", s:"https://de.wikipedia.org/wiki/Marktoberdorf"},
+    {e:"📍", pl:"Stąd jest blisko do hitów Bawarii: <b>~30 km do Neuschwanstein</b>, ~25 km do Füssen, <100 km do Monachium.", fr:"D'ici, les incontournables de Bavière sont tout proches : <b>~30 km de Neuschwanstein</b>, ~25 km de Füssen, <100 km de Munich.", s:"https://en.wikipedia.org/wiki/Marktoberdorf"}
+  ],
+  story:null, badges:["b_maestro"], game:"g_words"
+ },
+ {
+  id:"neuschwanstein", x:40, y:80, ico:"🏰", branch:false, ml:{pl:"Neuschwanstein",fr:"Neuschwanstein"},
+  title:{pl:"Neuschwanstein — zamek z bajki 🏰",fr:"Neuschwanstein — le château de conte de fées 🏰"},
+  sub:{pl:"Zamek „bajkowego króla” Ludwika II",fr:"Le château du « roi de conte de fées » Louis II"},
+  info:[
+    {k:{pl:"Bilet",fr:"Billet"}, v:{pl:"Bilet online z <b>konkretną godziną wejścia</b> (timed ticket)",fr:"Billet en ligne avec <b>heure d'entrée précise</b> (timed ticket)"}},
+    {k:{pl:"Ważne",fr:"Important"}, v:{pl:"Bądź na miejscu <b>~15 min przed</b> swoją godziną — droga pod zamek zajmuje czas.",fr:"Sois sur place <b>~15 min avant</b> ton créneau — la montée au château prend du temps."}},
+    {k:{pl:"Gdzie",fr:"Où"}, v:{pl:"Nad wioską Hohenschwangau, blisko Füssen",fr:"Au-dessus du village de Hohenschwangau, près de Füssen"}}
+  ],
+  todo:[ {pl:"Naładuj telefon — będzie mnóstwo zdjęć! 📸",fr:"Charge ton téléphone — il va y avoir plein de photos ! 📸"} ],
+  facts:[
+    {e:"🏰", pl:"Zamek był <b>inspiracją dla zamku Śpiącej Królewny w Disneylandzie</b> — tego z logo Disneya!", fr:"Le château a <b>inspiré celui de la Belle au bois dormant à Disneyland</b> — celui du logo Disney !", s:"https://www.britannica.com/topic/Neuschwanstein-Castle"},
+    {e:"👑", pl:"Zbudował go <b>król Ludwik II Bawarski</b>, zwany „bajkowym królem” i „szalonym królem Ludwikiem”.", fr:"Il fut bâti par le <b>roi Louis II de Bavière</b>, surnommé le « roi de conte de fées » et le « roi fou ».", s:"https://www.neuschwanstein.de/englisch/ludwig/biography.htm"},
+    {e:"🚧", pl:"Zamek <b>nigdy nie został ukończony</b>: z ponad 200 planowanych pokoi gotowych jest tylko <b>14</b>!", fr:"Le château <b>n'a jamais été terminé</b> : sur plus de 200 pièces prévues, seules <b>14</b> sont achevées !", s:"https://en.wikipedia.org/wiki/Neuschwanstein_Castle"},
+    {e:"🚽", pl:"Choć wygląda średniowiecznie, miał <b>bieżącą wodę, spłukiwane toalety i ogrzewanie</b> — supernowoczesne jak na XIX wiek!", fr:"Bien qu'il paraisse médiéval, il avait <b>eau courante, toilettes à chasse d'eau et chauffage</b> — ultramoderne pour le XIXᵉ siècle !", s:"https://history.howstuffworks.com/european-history/neuschwanstein-castle.htm"},
+    {e:"😢", pl:"Smutna ciekawostka: król mieszkał w swoim zamku tylko <b>172 dni</b> i zmarł tajemniczo w 1886 r.", fr:"Anecdote triste : le roi n'a vécu dans son château que <b>172 jours</b> et mourut mystérieusement en 1886.", s:"https://en.wikipedia.org/wiki/Neuschwanstein_Castle"},
+    {e:"👥", pl:"Dziś odwiedza go <b>ponad 1,3 mln osób rocznie</b> — latem nawet 6 000 dziennie!", fr:"Aujourd'hui, il reçoit <b>plus de 1,3 M de visiteurs par an</b> — jusqu'à 6 000 par jour l'été !", s:"https://en.wikipedia.org/wiki/Neuschwanstein_Castle"}
+  ],
+  story:{title:{pl:"Zagadka „bajkowego króla”",fr:"L'énigme du « roi de conte de fées »"},
+    pl:"Ludwik II był marzycielem — zamiast rządzić, budował bajkowe zamki i uwielbiał muzykę Wagnera. Rząd uznał go za „szalonego” i odebrał mu władzę. Dzień później, 13 czerwca 1886 r., król wyszedł na wieczorny spacer nad jezioro Starnberg — i obaj z lekarzem zostali znalezieni martwi w płytkiej wodzie. Ludwik był świetnym pływakiem, a w płucach nie miał wody… Do dziś nikt nie wie, co się naprawdę stało. 🕵️",
+    fr:"Louis II était un rêveur — au lieu de gouverner, il bâtissait des châteaux de conte de fées et adorait la musique de Wagner. Le gouvernement le déclara « fou » et lui retira le pouvoir. Le lendemain, le 13 juin 1886, le roi sortit se promener au bord du lac de Starnberg — et fut retrouvé mort dans l'eau peu profonde, avec son médecin. Louis était un excellent nageur, et n'avait pas d'eau dans les poumons… Aujourd'hui encore, nul ne sait ce qui s'est vraiment passé. 🕵️"},
+  badges:["b_castle"], game:"g_neusch"
+ },
+ {
+  id:"altenstadt", x:56, y:72, ico:"🛏️", branch:false, ml:{pl:"Schongau",fr:"Schongau"},
+  title:{pl:"Altenstadt / Schongau — odpoczynek",fr:"Altenstadt / Schongau — repos"},
+  sub:{pl:"08 – 09.07 • Airbnb",fr:"08 – 09.07 • Airbnb"},
+  info:[
+    {k:{pl:"Nocleg",fr:"Logement"}, v:{pl:"Ferienwohnung — Altenstadt b. Schongau",fr:"Ferienwohnung — Altenstadt b. Schongau"}},
+    {k:{pl:"Pobyt",fr:"Séjour"}, v:{pl:"Wejście 08.07 od 13:00 • Wyjście 09.07 do 10:00",fr:"Arrivée 08.07 dès 13:00 • Départ 09.07 avant 10:00"}},
+    {k:{pl:"Potwierdzenie",fr:"Confirmation"}, v:{pl:"<span class='ref'>(prywatne / privé)</span> • tel. (prywatny / privé)",fr:"<span class='ref'>(prywatne / privé)</span> • tél. (prywatny / privé)"}}
+  ],
+  todo:[ {pl:"Odpocznij — następnego dnia czeka bajkowy zamek Neuschwanstein! 🏰",fr:"Repose-toi — le lendemain, c'est le château de conte de fées Neuschwanstein ! 🏰"} ],
+  facts:[
+    {e:"🏯", pl:"Pobliskie <b>Schongau</b> to średniowieczne miasteczko na <b>Romantycznej Drodze</b>, wciąż otoczone murami obronnymi.", fr:"<b>Schongau</b>, tout proche, est une cité médiévale sur la <b>Route Romantique</b>, encore ceinte de remparts.", s:"https://romantischestrasse.de/en/schongau/"},
+    {e:"⛰️", pl:"Ulica nazwana jest od <b>Zugspitze</b> — najwyższej góry Niemiec (<b>2 962 m</b>), ze szczytu widać 4 kraje!", fr:"La rue porte le nom de la <b>Zugspitze</b> — le plus haut sommet d'Allemagne (<b>2 962 m</b>), d'où l'on voit 4 pays !", s:"https://en.wikipedia.org/wiki/Zugspitze"},
+    {e:"👑", pl:"Schongau było rezydencją dynastii <b>Wittelsbachów</b> — tej samej, z której pochodził król Ludwik II!", fr:"Schongau fut une résidence des <b>Wittelsbach</b> — la dynastie même du roi Louis II !", s:"https://en.wikipedia.org/wiki/Schongau,_Bavaria"}
+  ],
+  story:null, badges:["b_romantic"], game:"g_schongau"
+ },
+ {
+  id:"nice", x:14, y:86, ico:"🏁", branch:false, ml:{pl:"Nicea",fr:"Nice"},
+  title:{pl:"Powrót do Nicei 🏁",fr:"Retour à Nice 🏁"},
+  sub:{pl:"~10.07 • Koniec wielkiej wyprawy",fr:"~10.07 • Fin de la grande aventure"},
+  info:[
+    {k:{pl:"Powrót",fr:"Retour"}, v:{pl:"Samochodem z Bawarii do Nicei 🚗",fr:"En voiture, de Bavière jusqu'à Nice 🚗"}},
+    {k:{pl:"Mama Katia",fr:"Maman Katia"}, v:{pl:"💙 Niestety zostaje w Nicei, żeby pracować — ale trzyma kciuki za całą wyprawę i czeka na Was w domu!",fr:"💙 Reste malheureusement à Nice pour travailler — mais elle croise les doigts pour toute l'aventure et vous attend à la maison !"}}
+  ],
+  todo:[ {pl:"Opowiedz wszystkim o swojej przygodzie! I może… zaplanuj następną. 🌍",fr:"Raconte ton aventure à tout le monde ! Et peut-être… planifie la suivante. 🌍"} ],
+  facts:[
+    {e:"🌍", pl:"Gratulacje! Domknąłeś wielką pętlę przez <b>3 kraje</b>: Francję, Finlandię i Niemcy. (A Tata, Alice i Wojtek dotarli pociągiem aż do Polski!)", fr:"Bravo ! Tu as bouclé la grande boucle à travers <b>3 pays</b> : France, Finlande et Allemagne. (Et Papa, Alice et Wojtek sont allés en train jusqu'en Pologne !)"},
+    {e:"⏰", pl:"Po drodze przekraczałeś strefy czasowe: latem Finlandia (UTC+3) wyprzedza Francję, Niemcy i Polskę (UTC+2) o godzinę.", fr:"En chemin, tu as franchi des fuseaux horaires : l'été, la Finlande (UTC+3) est en avance d'une heure sur la France, l'Allemagne et la Pologne (UTC+2).", s:"https://en.wikipedia.org/wiki/Time_in_Finland"}
+  ],
+  story:{title:{pl:"Wyjazd życia — zaliczony! 🎉",fr:"Le voyage d'une vie — accompli ! 🎉"},
+    pl:"Samoloty, nocne pociągi, słońce o północy, bajkowy zamek i dwa staże muzyczne — a w wątku rodzinnym rodzina dotarła aż do Gniezna, pierwszej stolicy Polski. Niewielu ma taką historię do opowiedzenia. Brawo, Paul! 👏",
+    fr:"Des avions, des trains de nuit, le soleil de minuit, un château de conte de fées et deux stages de musique — et côté famille, jusqu'à Gniezno, première capitale de la Pologne. Peu de gens ont une telle histoire à raconter. Bravo, Paul ! 👏"},
+  badges:["b_europe"], game:"g_distance"
+ },
+ /* ---- BRANCH: family (Tata + Alice + Wojtek) ---- */
+ {
+  id:"carfamily", x:24, y:70, ico:"🚗", branch:true, ml:{pl:"Tata+Alice 🚗",fr:"Papa+Alice 🚗"},
+  title:{pl:"Tata + Alice — autem do Bawarii 🚗",fr:"Papa + Alice — en voiture vers la Bavière 🚗"},
+  sub:{pl:"Wątek rodzinny • 01–02.07",fr:"Branche famille • 01–02.07"},
+  info:[
+    {k:{pl:"Kto",fr:"Qui"}, v:{pl:"Tata (Grzegorz) i Alice",fr:"Papa (Grzegorz) et Alice"}},
+    {k:{pl:"Trasa",fr:"Trajet"}, v:{pl:"Nicea → Marktoberdorf samochodem",fr:"Nice → Marktoberdorf en voiture"}},
+    {k:{pl:"Kiedy",fr:"Quand"}, v:{pl:"Wyjazd z Nicei 01.07, przyjazd 02.07",fr:"Départ de Nice le 01.07, arrivée le 02.07"}},
+    {k:{pl:"Dalej",fr:"Ensuite"}, v:{pl:"Stąd pociągiem do Gniezna po Wojtka",fr:"De là, en train à Gniezno chercher Wojtek"}}
+  ],
+  todo:[],
+  facts:[
+    {e:"🏔️", pl:"Trasa prowadzi z <b>Lazurowego Wybrzeża prosto w Alpy</b> — z palm i morza w góry w jeden dzień drogi!", fr:"La route va de la <b>Côte d'Azur droit dans les Alpes</b> — des palmiers et la mer aux montagnes en une journée !"},
+    {e:"🎶", pl:"Długi roadtrip przez Alpy — idealny na rodzinne pogaduchy i wspólne playlisty w aucie.", fr:"Un long road-trip à travers les Alpes — parfait pour les discussions en famille et les playlists en voiture."}
+  ],
+  story:null, badges:["b_roadtrip"], game:"g_roadtrip"
+ },
+ {
+  id:"poznan", x:80, y:54, ico:"🐐", branch:true, ml:{pl:"Poznań",fr:"Poznań"},
+  title:{pl:"Poznań — miasto koziołków 🐐",fr:"Poznań — la ville des chevreaux 🐐"},
+  sub:{pl:"Wątek rodzinny • przystanek w drodze do Gniezna",fr:"Branche famille • arrêt sur la route de Gniezno"},
+  info:[
+    {k:{pl:"Kto",fr:"Qui"}, v:{pl:"Tata i Alice jadą pociągiem do Gniezna po Wojtka (Ty zostajesz na stażu i nie jedziesz do Polski)",fr:"Papa et Alice vont en train à Gniezno chercher Wojtek (toi, tu restes au stage et ne vas pas en Pologne)"}}
+  ],
+  todo:[],
+  facts:[
+    {e:"🐐", pl:"Codziennie w <b>południe</b> na wieży ratusza dwa mechaniczne <b>koziołki trykają się rogami 12 razy</b>.", fr:"Chaque jour à <b>midi</b>, sur la tour de l'hôtel de ville, deux <b>chevreaux mécaniques se donnent 12 coups de cornes</b>.", s:"https://en.wikipedia.org/wiki/Pozna%C5%84_Goats"},
+    {e:"⏳", pl:"Ten mechanizm działa od <b>1551 roku</b> — ponad 470 lat tradycji!", fr:"Ce mécanisme fonctionne depuis <b>1551</b> — plus de 470 ans de tradition !", s:"https://en.wikipedia.org/wiki/Pozna%C5%84_Goats"},
+    {e:"🥐", pl:"Poznań słynie z <b>rogali świętomarcińskich</b> (z białym makiem), chronionych w całej UE od 2008 r.", fr:"Poznań est célèbre pour ses <b>croissants de la Saint-Martin</b> (au pavot blanc), protégés dans toute l'UE depuis 2008.", s:"https://en.wikipedia.org/wiki/St._Martin's_croissant"}
+  ],
+  story:{title:{pl:"Legenda o koziołkach",fr:"La légende des chevreaux"},
+    pl:"Podczas uczty młody kucharz przypalił pieczeń, więc porwał z łąki dwa koziołki, żeby je upiec. Ale zwierzaki uciekły na wieżę ratusza i tam zaczęły się zabawnie trykać rogami na oczach gości. Wszyscy się tak uśmiali, że kucharzowi wybaczono, a zegarmistrz zrobił mechanizm, który do dziś powtarza tę scenę w samo południe!",
+    fr:"Pendant un banquet, un jeune cuisinier brûla le rôti ; il attrapa alors deux chevreaux dans un pré pour les cuire. Mais les bêtes s'enfuirent sur la tour de l'hôtel de ville et se mirent à se donner des coups de cornes sous les yeux des invités. On rit tellement que le cuisinier fut pardonné, et l'horloger fabriqua un mécanisme qui rejoue la scène chaque jour à midi !"},
+  badges:["b_goat"], game:"g_poznan"
+ },
+ {
+  id:"gniezno", x:91, y:44, ico:"🦅", branch:true, ml:{pl:"Gniezno",fr:"Gniezno"},
+  title:{pl:"Gniezno — pierwsza stolica Polski 🦅",fr:"Gniezno — première capitale de la Pologne 🦅"},
+  sub:{pl:"Wątek rodzinny • kolebka państwa polskiego",fr:"Branche famille • berceau de l'État polonais"},
+  info:[
+    {k:{pl:"Kto",fr:"Qui"}, v:{pl:"<b>Wojtek mieszka w Gnieźnie!</b> Tata i Alice przyjeżdżają po niego pociągiem z Marktoberdorf i zabierają go do Nicei. Ty w tym czasie zostajesz na stażu w Bawarii.",fr:"<b>Wojtek habite à Gniezno !</b> Papa et Alice viennent le chercher en train depuis Marktoberdorf et l'emmènent à Nice. Toi, pendant ce temps, tu restes au stage en Bavière."}},
+    {k:{pl:"Pociągi",fr:"Trains"}, v:{pl:"DB ICE + EuroCity przez Berlin i Poznań (Super Sparpreis Europa), 02.07 i 08.07",fr:"DB ICE + EuroCity via Berlin et Poznań (Super Sparpreis Europa), 02.07 et 08.07"}}
+  ],
+  todo:[],
+  facts:[
+    {e:"🏛️", pl:"Gniezno to <b>pierwsza historyczna stolica Polski</b> — kolebka państwa pierwszych Piastów.", fr:"Gniezno est la <b>première capitale historique de la Pologne</b> — le berceau de l'État des premiers Piast.", s:"https://en.wikipedia.org/wiki/Gniezno"},
+    {e:"🦅", pl:"Nazwa pochodzi od słowa <b>„gniazdo”</b> — bo według legendy Lech znalazł tu gniazdo białego orła.", fr:"Le nom vient du mot <b>« gniazdo » (nid)</b> — car selon la légende, Lech y trouva le nid d'un aigle blanc.", s:"https://en.wikipedia.org/wiki/Gniezno"},
+    {e:"🤝", pl:"W roku <b>1000</b> odbył się tu <b>Zjazd Gnieźnieński</b>: Bolesław Chrobry przyjął cesarza Ottona III.", fr:"En l'an <b>1000</b> s'y tint le <b>Congrès de Gniezno</b> : Boleslas le Vaillant y reçut l'empereur Otton III.", s:"https://en.wikipedia.org/wiki/Gniezno"},
+    {e:"👑", pl:"W katedrze gnieźnieńskiej koronowano aż <b>pięciu królów</b> Polski.", fr:"Dans la cathédrale de Gniezno furent couronnés pas moins de <b>cinq rois</b> de Pologne.", s:"https://en.wikipedia.org/wiki/Gniezno"},
+    {e:"🚪", pl:"Słynne <b>Drzwi Gnieźnieńskie</b> (z brązu, ok. 1175 r.) pokazują 18 scen z życia św. Wojciecha — to arcydzieło sztuki romańskiej.", fr:"Les célèbres <b>Portes de Gniezno</b> (en bronze, vers 1175) montrent 18 scènes de la vie de saint Adalbert — un chef-d'œuvre de l'art roman.", s:"https://en.wikipedia.org/wiki/Gniezno_Doors"}
+  ],
+  story:{title:{pl:"Legenda o Lechu i Białym Orle",fr:"La légende de Lech et de l'Aigle blanc"},
+    pl:"Trzej bracia — Lech, Czech i Rus — wędrowali przez puszczę. Lech zobaczył ogromnego białego orła broniącego gniazda na tle czerwonego, zachodzącego słońca. Uznał to za znak: „Tu zbuduję dom!”. Osadę nazwał Gniezno (od „gniazda”), a białego orła na czerwonym tle uczynił swoim znakiem — i tak narodził się symbol Polski, który widzimy do dziś!",
+    fr:"Trois frères — Lech, Tchèque et Rus — traversaient la forêt. Lech aperçut un immense aigle blanc défendant son nid sur fond de soleil couchant rouge. Il y vit un signe : « C'est ici que je bâtirai ma maison ! ». Il nomma le lieu Gniezno (de « gniazdo », le nid), et fit de l'aigle blanc sur fond rouge son emblème — ainsi naquit le symbole de la Pologne, toujours visible aujourd'hui !"},
+  badges:["b_eagle","b_crown"], game:"g_geo"
+ }
+];
+
+/* ============================== BADGES ============================== */
+const BADGES = {
+  b_air:{e:"✈️", n:{pl:"Podniebny Podróżnik",fr:"Voyageur du ciel"}},
+  b_fin:{e:"🇫🇮", n:{pl:"Witaj w Finlandii",fr:"Bienvenue en Finlande"}},
+  b_arctic:{e:"🧭", n:{pl:"Zdobywca Koła Podbiegunowego",fr:"Conquérant du cercle polaire"}},
+  b_violin:{e:"🎼", n:{pl:"Dyrygent Laponii",fr:"Chef d'orchestre de Laponie"}},
+  b_sun:{e:"🌙", n:{pl:"Słońce o Północy",fr:"Soleil de minuit"}},
+  b_night:{e:"🚂", n:{pl:"Mistrz Pociągów Nocnych",fr:"Maître des trains de nuit"}},
+  b_bayern:{e:"🥨", n:{pl:"Bawarczyk na chwilę",fr:"Bavarois d'un jour"}},
+  b_maestro:{e:"🎻", n:{pl:"Wirtuoz z Marktoberdorf",fr:"Virtuose de Marktoberdorf"}},
+  b_castle:{e:"🏰", n:{pl:"Rycerz Neuschwanstein",fr:"Chevalier de Neuschwanstein"}},
+  b_romantic:{e:"🏯", n:{pl:"Strażnik Romantycznej Drogi",fr:"Gardien de la Route Romantique"}},
+  b_europe:{e:"🌍", n:{pl:"Europejczyk Roku",fr:"Européen de l'année"}},
+  b_goat:{e:"🐐", n:{pl:"Pogromca Koziołków",fr:"Dompteur des chevreaux"}},
+  b_eagle:{e:"🦅", n:{pl:"Strażnik Białego Orła",fr:"Gardien de l'Aigle blanc"}},
+  b_crown:{e:"👑", n:{pl:"Koronowany w Gnieźnie",fr:"Couronné à Gniezno"}},
+  b_quizmaster:{e:"🧠", n:{pl:"Mistrz Quizów",fr:"Maître des quiz"}},
+  b_timelord:{e:"⏰", n:{pl:"Władca Stref Czasowych",fr:"Maître des fuseaux"}},
+  b_baton:{e:"🪄", n:{pl:"Mały Dyrygent",fr:"Petit chef d'orchestre"}},
+  b_roadtrip:{e:"🚗", n:{pl:"Mistrz Roadtripu",fr:"Roi du road-trip"}}
+};
+
+/* ============================== GAMES ============================== */
+const GAMES = {
+ g_finland:{ type:"quiz", title:{pl:"Quiz: Laponia i Finlandia",fr:"Quiz : Laponie et Finlande"},
+  qs:[
+   {q:{pl:"Ile godzin trwa dzień w Kemi pod koniec czerwca?",fr:"Combien d'heures dure le jour à Kemi fin juin ?"},
+    o:[{pl:"Około 22–23 godziny",fr:"Environ 22–23 heures"},{pl:"Około 12 godzin",fr:"Environ 12 heures"},{pl:"Około 16 godzin",fr:"Environ 16 heures"}], c:0},
+   {q:{pl:"Czyją szkołą jest „Panula Academy”?",fr:"De qui la « Panula Academy » est-elle l'école ?"},
+    o:[{pl:"Legendarnego dyrygenta Jormy Panuli",fr:"Du légendaire chef Jorma Panula"},{pl:"Pianisty Fryderyka Chopina",fr:"Du pianiste Frédéric Chopin"},{pl:"Skrzypka Paganiniego",fr:"Du violoniste Paganini"}], c:0},
+   {q:{pl:"Ile jezior ma Finlandia?",fr:"Combien de lacs compte la Finlande ?"},
+    o:[{pl:"Ponad 188 000",fr:"Plus de 188 000"},{pl:"Około 1 000",fr:"Environ 1 000"},{pl:"Około 50 000",fr:"Environ 50 000"}], c:0},
+   {q:{pl:"Co dziwnego kryje się w nazwisku kompozytora Toivo Kuuli?",fr:"Quoi d'étonnant se cache dans le nom du compositeur Toivo Kuula ?"},
+    o:[{pl:"Po fińsku znaczy „kula/pocisk”",fr:"En finnois, il signifie « balle »"},{pl:"Znaczy „księżyc”",fr:"Il signifie « lune »"},{pl:"Znaczy „skrzypce”",fr:"Il signifie « violon »"}], c:0},
+   {q:{pl:"Który kompozytor jest fińskim bohaterem narodowym?",fr:"Quel compositeur est un héros national finlandais ?"},
+    o:[{pl:"Jean Sibelius",fr:"Jean Sibelius"},{pl:"Edvard Grieg",fr:"Edvard Grieg"},{pl:"Robert Schumann",fr:"Robert Schumann"}], c:0}
+  ]},
+ g_titles:{ type:"match", title:{pl:"Połącz fiński tytuł z tłumaczeniem",fr:"Relie le titre finnois à sa traduction"},
+  pairs:[
+   {a:"Aamulaulu", b:{pl:"Pieśń poranna",fr:"Chant du matin"}},
+   {a:"Itkisit joskus", b:{pl:"Zapłakałbyś czasem",fr:"Tu pleurerais parfois"}},
+   {a:"Rauha", b:{pl:"Pokój / spokój",fr:"La paix"}},
+   {a:"Silloin minä itkin", b:{pl:"Wtedy płakałem",fr:"Alors j'ai pleuré"}}
+  ]},
+ g_bavaria:{ type:"quiz", title:{pl:"Quiz: Bawaria i Monachium",fr:"Quiz : Bavière et Munich"},
+  qs:[
+   {q:{pl:"Jaka jest najwyższa góra Niemiec?",fr:"Quel est le plus haut sommet d'Allemagne ?"},
+    o:[{pl:"Zugspitze (2 962 m)",fr:"Zugspitze (2 962 m)"},{pl:"Brocken",fr:"Brocken"},{pl:"Watzmann",fr:"Watzmann"}], c:0},
+   {q:{pl:"Jak nazywa się największa ludowa impreza świata w Monachium?",fr:"Comment s'appelle la plus grande fête populaire du monde, à Munich ?"},
+    o:[{pl:"Oktoberfest",fr:"Oktoberfest"},{pl:"Karnawał",fr:"Le Carnaval"},{pl:"Maifest",fr:"Maifest"}], c:0},
+   {q:{pl:"Jaka marka samochodów ma siedzibę w Monachium?",fr:"Quelle marque automobile a son siège à Munich ?"},
+    o:[{pl:"BMW",fr:"BMW"},{pl:"Volkswagen",fr:"Volkswagen"},{pl:"Porsche",fr:"Porsche"}], c:0},
+   {q:{pl:"Co dziwnego robią ludzie w centrum Monachium na rzece Eisbach?",fr:"Que font les gens d'étonnant sur l'Eisbach, en plein Munich ?"},
+    o:[{pl:"Surfują na fali",fr:"Ils surfent sur la vague"},{pl:"Łowią rekiny",fr:"Ils pêchent des requins"},{pl:"Grają w hokeja",fr:"Ils jouent au hockey"}], c:0}
+  ]},
+ g_neusch:{ type:"tf", title:{pl:"Prawda czy fałsz: Neuschwanstein",fr:"Vrai ou faux : Neuschwanstein"},
+  qs:[
+   {s:{pl:"Zamek Neuschwanstein był inspiracją dla zamku Disneya.",fr:"Le château de Neuschwanstein a inspiré celui de Disney."}, a:true},
+   {s:{pl:"Zamek został w pełni ukończony za życia króla.",fr:"Le château a été entièrement achevé du vivant du roi."}, a:false,
+    note:{pl:"Gotowych jest tylko 14 z ponad 200 pokoi!",fr:"Seules 14 pièces sur plus de 200 sont achevées !"}},
+   {s:{pl:"W zamku nie było bieżącej wody ani toalet.",fr:"Le château n'avait ni eau courante ni toilettes."}, a:false,
+    note:{pl:"Wręcz przeciwnie — miał bieżącą wodę, toalety i ogrzewanie.",fr:"Au contraire — il avait l'eau courante, des toilettes et le chauffage."}},
+   {s:{pl:"Króla Ludwika II nazywano „bajkowym królem”.",fr:"Le roi Louis II était surnommé le « roi de conte de fées »."}, a:true},
+   {s:{pl:"Zamek odwiedza ponad milion osób rocznie.",fr:"Le château reçoit plus d'un million de visiteurs par an."}, a:true}
+  ]},
+ g_gniezno_extra:{ type:"tf", title:{pl:"Prawda czy fałsz: Gniezno",fr:"Vrai ou faux : Gniezno"},
+  qs:[
+   {s:{pl:"Nazwa Gniezno pochodzi od słowa „gniazdo”.",fr:"Le nom Gniezno vient du mot « nid » (gniazdo)."}, a:true},
+   {s:{pl:"W Gnieźnie nigdy nie koronowano żadnego króla.",fr:"Aucun roi n'a jamais été couronné à Gniezno."}, a:false,
+    note:{pl:"Koronowano tu aż 5 władców!",fr:"On y couronna 5 souverains !"}},
+   {s:{pl:"Drzwi Gnieźnieńskie są zrobione ze złota.",fr:"Les Portes de Gniezno sont en or."}, a:false,
+    note:{pl:"Są z brązu.",fr:"Elles sont en bronze."}},
+   {s:{pl:"Zjazd Gnieźnieński odbył się w roku 1000.",fr:"Le Congrès de Gniezno eut lieu en l'an 1000."}, a:true}
+  ]},
+ g_words:{ type:"match", title:{pl:"Połącz słowa: niemiecki → polski",fr:"Relie les mots : allemand → français"},
+  pairs:[
+   {a:"Danke", b:{pl:"dziękuję",fr:"merci"}},
+   {a:"Bahnhof", b:{pl:"dworzec",fr:"gare"}},
+   {a:"Schloss", b:{pl:"zamek",fr:"château"}},
+   {a:"Berg", b:{pl:"góra",fr:"montagne"}},
+   {a:"Wasser", b:{pl:"woda",fr:"eau"}},
+   {a:"Musik", b:{pl:"muzyka",fr:"musique"}}
+  ]},
+ g_distance:{ type:"slider", title:{pl:"Oszacuj odległość Paryż → Kemi",fr:"Estime la distance Paris → Kemi"},
+  q:{pl:"Ile kilometrów w linii prostej jest z Paryża do Kemi?",fr:"Combien de km à vol d'oiseau de Paris à Kemi ?"},
+  min:500, max:4000, step:50, answer:2261, unit:"km", tol:200,
+  after:{pl:"To prawie 2 300 km — z południa Europy na sam jej skraj!",fr:"Près de 2 300 km — du sud de l'Europe jusqu'à son extrême nord !"} },
+ g_geo:{ type:"quiz", title:{pl:"Quiz: przez całą Europę 🌍",fr:"Quiz : à travers l'Europe 🌍"},
+  qs:[
+   {q:{pl:"Jaka była PIERWSZA stolica Polski?",fr:"Quelle fut la PREMIÈRE capitale de la Pologne ?"},
+    o:[{pl:"Gniezno",fr:"Gniezno"},{pl:"Warszawa",fr:"Varsovie"},{pl:"Kraków",fr:"Cracovie"}], c:0},
+   {q:{pl:"Jaka jest stolica Finlandii?",fr:"Quelle est la capitale de la Finlande ?"},
+    o:[{pl:"Helsinki",fr:"Helsinki"},{pl:"Sztokholm",fr:"Stockholm"},{pl:"Oslo",fr:"Oslo"}], c:0},
+   {q:{pl:"W którym kraju leży zamek Neuschwanstein?",fr:"Dans quel pays se trouve Neuschwanstein ?"},
+    o:[{pl:"Niemcy (Bawaria)",fr:"Allemagne (Bavière)"},{pl:"Austria",fr:"Autriche"},{pl:"Szwajcaria",fr:"Suisse"}], c:0},
+   {q:{pl:"O ile godzin Finlandia wyprzedza latem Polskę?",fr:"De combien d'heures la Finlande est-elle en avance sur la Pologne l'été ?"},
+    o:[{pl:"1 godzinę",fr:"1 heure"},{pl:"0 godzin",fr:"0 heure"},{pl:"3 godziny",fr:"3 heures"}], c:0, bonus:"b_timelord"}
+  ]},
+ g_music:{ type:"quiz", title:{pl:"Muzyczne wyzwanie 🎻🎹",fr:"Défi musical 🎻🎹"},
+  qs:[
+   {q:{pl:"Ile strun ma skrzypce?",fr:"Combien de cordes a un violon ?"},
+    o:[{pl:"4 (G, D, A, E)",fr:"4 (sol, ré, la, mi)"},{pl:"6",fr:"6"},{pl:"5",fr:"5"}], c:0},
+   {q:{pl:"Ile klawiszy ma standardowy fortepian?",fr:"Combien de touches a un piano standard ?"},
+    o:[{pl:"88",fr:"88"},{pl:"61",fr:"61"},{pl:"100",fr:"100"}], c:0},
+   {q:{pl:"Czego używa dyrygent, by prowadzić orkiestrę?",fr:"Qu'utilise un chef pour diriger l'orchestre ?"},
+    o:[{pl:"Batuty (pałeczki)",fr:"Une baguette"},{pl:"Smyczka",fr:"Un archet"},{pl:"Młoteczka",fr:"Un marteau"}], c:0},
+   {q:{pl:"Jorma Panula (patron akademii w Kemi) słynie jako nauczyciel...",fr:"Jorma Panula (parrain de l'académie de Kemi) est surtout professeur de…"},
+    o:[{pl:"dyrygentów (np. Salonen, Mäkelä)",fr:"chefs d'orchestre (Salonen, Mäkelä…)"},{pl:"pianistów",fr:"pianistes"},{pl:"perkusistów",fr:"percussionnistes"}], c:0}
+  ]},
+ g_conduct:{ type:"tap", title:{pl:"Batuta: wybij tempo!",fr:"Baguette : donne le tempo !"},
+  q:{pl:"Zostań dyrygentem! Klikaj „Raz!” w równym rytmie (min. 4 razy), a obliczymy Twoje tempo (BPM) i jego włoską nazwę.",fr:"Deviens chef d'orchestre ! Clique « Et hop ! » à un rythme régulier (min. 4 fois) et on calcule ton tempo (BPM) et son terme italien."},
+  tapLabel:{pl:"🪄 Raz!",fr:"🪄 Et hop !"}, resetLabel:{pl:"↺ Od nowa",fr:"↺ Recommencer"}, waiting:{pl:"Klikaj równo…",fr:"Clique en rythme…"} },
+ g_paris:{ type:"quiz", title:{pl:"Quiz: Start w Paryżu ✈️",fr:"Quiz : Départ de Paris ✈️"},
+  qs:[
+   {q:{pl:"Z którego lotniska startujesz?",fr:"De quel aéroport pars-tu ?"},
+    o:[{pl:"Paryż Charles de Gaulle (CDG)",fr:"Paris Charles de Gaulle (CDG)"},{pl:"Paryż Orly",fr:"Paris Orly"},{pl:"Beauvais",fr:"Beauvais"}], c:0},
+   {q:{pl:"Jaką linią lotniczą lecisz do Finlandii?",fr:"Avec quelle compagnie voles-tu vers la Finlande ?"},
+    o:[{pl:"Finnair",fr:"Finnair"},{pl:"Air France",fr:"Air France"},{pl:"Ryanair",fr:"Ryanair"}], c:0},
+   {q:{pl:"Ile krajów odwiedzisz w tej wyprawie?",fr:"Combien de pays vas-tu visiter dans ce voyage ?"},
+    o:[{pl:"3 (Francja, Finlandia, Niemcy)",fr:"3 (France, Finlande, Allemagne)"},{pl:"1",fr:"1"},{pl:"6",fr:"6"}], c:0}
+  ]},
+ g_helsinki:{ type:"quiz", title:{pl:"Quiz: Lotnisko Helsinki 🛬",fr:"Quiz : Aéroport d'Helsinki 🛬"},
+  qs:[
+   {q:{pl:"Co fińskiego znajdziesz na lotnisku w Helsinkach?",fr:"Quelle chose typiquement finlandaise trouve-t-on à l'aéroport d'Helsinki ?"},
+    o:[{pl:"Saunę",fr:"Un sauna"},{pl:"Stok narciarski",fr:"Une piste de ski"},{pl:"Basen z rekinami",fr:"Un bassin à requins"}], c:0},
+   {q:{pl:"Jak głęboko pod ziemią jest stacja pociągu na lotnisku?",fr:"À quelle profondeur est la gare de l'aéroport ?"},
+    o:[{pl:"30 metrów",fr:"30 mètres"},{pl:"3 metry",fr:"3 mètres"},{pl:"100 metrów",fr:"100 mètres"}], c:0},
+   {q:{pl:"Ile ruchu międzynarodowego Finlandii obsługuje to lotnisko?",fr:"Quelle part du trafic international finlandais y passe ?"},
+    o:[{pl:"Około 90%",fr:"Environ 90 %"},{pl:"Około 50%",fr:"Environ 50 %"},{pl:"Około 20%",fr:"Environ 20 %"}], c:0}
+  ]},
+ g_night:{ type:"quiz", title:{pl:"Quiz: Nocny pociąg 🚂",fr:"Quiz : Train de nuit 🚂"},
+  qs:[
+   {q:{pl:"Jak nazywa się słynny fiński nocny pociąg?",fr:"Comment s'appelle le célèbre train de nuit finlandais ?"},
+    o:[{pl:"Santa Claus Express",fr:"Santa Claus Express"},{pl:"Orient Express",fr:"Orient Express"},{pl:"Polar Express",fr:"Polar Express"}], c:0},
+   {q:{pl:"Co możesz zabrać ze sobą tym pociągiem?",fr:"Que peux-tu emporter dans ce train ?"},
+    o:[{pl:"Swój samochód",fr:"Ta voiture"},{pl:"Konia",fr:"Un cheval"},{pl:"Łódkę",fr:"Une barque"}], c:0},
+   {q:{pl:"Dokąd na północy jadą te pociągi?",fr:"Vers où, au nord, vont ces trains ?"},
+    o:[{pl:"Do Rovaniemi (dom Mikołaja)",fr:"Vers Rovaniemi (maison du Père Noël)"},{pl:"Na biegun północny",fr:"Au pôle Nord"},{pl:"Do Murmańska",fr:"À Mourmansk"}], c:0}
+  ]},
+ g_schongau:{ type:"quiz", title:{pl:"Quiz: Schongau i Zugspitze ⛰️",fr:"Quiz : Schongau et la Zugspitze ⛰️"},
+  qs:[
+   {q:{pl:"Jak nazywa się najwyższa góra Niemiec (od niej nazwa ulicy)?",fr:"Quel est le plus haut sommet d'Allemagne (qui nomme la rue) ?"},
+    o:[{pl:"Zugspitze (2 962 m)",fr:"Zugspitze (2 962 m)"},{pl:"Brocken",fr:"Brocken"},{pl:"Watzmann",fr:"Watzmann"}], c:0},
+   {q:{pl:"Na jakiej słynnej trasie leży Schongau?",fr:"Sur quelle célèbre route se trouve Schongau ?"},
+    o:[{pl:"Na Romantycznej Drodze",fr:"La Route Romantique"},{pl:"Na Jedwabnym Szlaku",fr:"La Route de la soie"},{pl:"Na Drodze Mlecznej",fr:"La Voie lactée"}], c:0},
+   {q:{pl:"Ile krajów widać ze szczytu Zugspitze?",fr:"Combien de pays voit-on du sommet de la Zugspitze ?"},
+    o:[{pl:"4",fr:"4"},{pl:"2",fr:"2"},{pl:"8",fr:"8"}], c:0}
+  ]},
+ g_poznan:{ type:"quiz", title:{pl:"Quiz: Poznańskie koziołki 🐐",fr:"Quiz : Les chevreaux de Poznań 🐐"},
+  qs:[
+   {q:{pl:"Co robią poznańskie koziołki codziennie w południe?",fr:"Que font les chevreaux de Poznań chaque jour à midi ?"},
+    o:[{pl:"Trykają się rogami",fr:"Ils se donnent des coups de cornes"},{pl:"Tańczą walca",fr:"Ils dansent la valse"},{pl:"Grają w piłkę",fr:"Ils jouent au ballon"}], c:0},
+   {q:{pl:"Ile razy się trykają?",fr:"Combien de fois se cognent-ils ?"},
+    o:[{pl:"12 razy",fr:"12 fois"},{pl:"7 razy",fr:"7 fois"},{pl:"24 razy",fr:"24 fois"}], c:0},
+   {q:{pl:"Z czego słyną rogale świętomarcińskie?",fr:"Pour quoi sont célèbres les croissants de la Saint-Martin ?"},
+    o:[{pl:"Z białego maku",fr:"Le pavot blanc"},{pl:"Z czekolady",fr:"Le chocolat"},{pl:"Z sera",fr:"Le fromage"}], c:0}
+  ]},
+ g_roadtrip:{ type:"quiz", title:{pl:"Quiz: Rodzinny roadtrip 🚗",fr:"Quiz : Le road-trip familial 🚗"},
+  qs:[
+   {q:{pl:"Skąd wyruszają Tata i Alice samochodem?",fr:"D'où partent Papa et Alice en voiture ?"},
+    o:[{pl:"Z Nicei",fr:"De Nice"},{pl:"Z Paryża",fr:"De Paris"},{pl:"Z Gniezna",fr:"De Gniezno"}], c:0},
+   {q:{pl:"Przez jakie góry prowadzi trasa do Bawarii?",fr:"Quelles montagnes la route vers la Bavière traverse-t-elle ?"},
+    o:[{pl:"Alpy",fr:"Les Alpes"},{pl:"Pireneje",fr:"Les Pyrénées"},{pl:"Karpaty",fr:"Les Carpates"}], c:0},
+   {q:{pl:"Kiedy wyjeżdżają z Nicei?",fr:"Quand partent-ils de Nice ?"},
+    o:[{pl:"1 lipca",fr:"Le 1ᵉʳ juillet"},{pl:"5 lipca",fr:"Le 5 juillet"},{pl:"10 lipca",fr:"Le 10 juillet"}], c:0}
+  ]}
+};
+const EXTRA_GAMES = { kemi:["g_finland","g_titles","g_conduct"], marktoberdorf:["g_words","g_music"], gniezno:["g_geo","g_gniezno_extra"], neuschwanstein:["g_neusch"] };
+
+/* ============================== STATE ============================== */
+let LANG = localStorage.getItem("vy_lang") || "pl";
+let progress = JSON.parse(localStorage.getItem("vy_progress")||"{}");
+let earned = JSON.parse(localStorage.getItem("vy_badges")||"{}");
+let hero = JSON.parse(localStorage.getItem("vy_hero")||"null") || {id:"paul"};
+let photos = JSON.parse(localStorage.getItem("vy_photos")||"{}");
+/* Po wgraniu zdjęć do folderu photos/ (paul.jpg, tata.jpg, …) zmień na true.
+   Après avoir mis des photos dans photos/ (paul.jpg, tata.jpg, …), passe à true. */
+const USE_FOLDER_PHOTOS = false;
+let current = null;
+const t = (o)=> o ? (o[LANG]||o.pl||"") : "";
+const save = ()=>{ localStorage.setItem("vy_progress",JSON.stringify(progress)); localStorage.setItem("vy_badges",JSON.stringify(earned)); };
+const MAIN = ["paris","helsinki","kemi","night","munich","marktoberdorf","altenstadt","neuschwanstein","nice"];
+const UNLOCK_DATE = new Date(2026,5,28); /* J-1 = 28.06.2026, dzień przed wyjazdem */
+const TRIP_START = new Date(2026,5,29), TRIP_END = new Date(2026,6,11);
+let DEV = localStorage.getItem("vy_dev")==="1";
+(function(){ const q=new URLSearchParams(location.search);
+  if(q.get("dev")==="1"){ DEV=true; localStorage.setItem("vy_dev","1"); }
+  if(q.get("dev")==="0"){ DEV=false; localStorage.removeItem("vy_dev"); } })();
+function effectiveDate(){ const q=new URLSearchParams(location.search).get("day");
+  if(q){ const p=q.split("-"); if(p.length===3){ const d=new Date(+p[0],+p[1]-1,+p[2]); if(!isNaN(d)) return d; } }
+  return new Date(); }
+function gamesUnlocked(){ return DEV || (effectiveDate() >= UNLOCK_DATE); }
+const DAY_STAGE = { "2026-06-29":"paris","2026-06-30":"kemi","2026-07-01":"kemi","2026-07-02":"kemi","2026-07-03":"night","2026-07-04":"munich","2026-07-05":"marktoberdorf","2026-07-06":"marktoberdorf","2026-07-07":"marktoberdorf","2026-07-08":"altenstadt","2026-07-09":"neuschwanstein","2026-07-10":"nice" };
+function todayStage(){ const d=effectiveDate(); const key=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); return DAY_STAGE[key]||null; }
+
+/* ============================== RENDER ============================== */
+function setLang(l){ LANG=l; localStorage.setItem("vy_lang",l);
+  document.documentElement.lang=l;
+  document.getElementById("lpl").classList.toggle("on",l==="pl");
+  document.getElementById("lfr").classList.toggle("on",l==="fr");
+  renderStatic(); renderMap(); renderBadges(); updateHeroPill(); if(current) openStage(current,true);
+}
+function renderStatic(){
+  document.querySelectorAll("[data-i]").forEach(el=>{ const k=el.getAttribute("data-i"); if(UI[k]) el.innerHTML=t(UI[k]); });
+  renderCountdown();
+}
+function renderCountdown(){
+  const start=new Date(2026,5,29), end=new Date(2026,6,11), now=new Date();
+  const el=document.getElementById("cdtext");
+  const d=Math.ceil((start-now)/(1000*60*60*24));
+  if(now>=end){ el.textContent=t(UI.cdDone); }
+  else if(now>=start){ el.textContent=t(UI.cdGo); }
+  else { el.textContent="J-"+d+" • "+d+" "+t(UI.cdDays); }
+}
+function renderMap(){
+  const map=document.getElementById("map");
+  map.querySelectorAll(".node").forEach(n=>n.remove());
+  const svg=document.getElementById("paths");
+  svg.querySelectorAll("path").forEach(p=>p.remove());
+  const pos=id=>{const s=S.find(x=>x.id===id);return s?{x:s.x,y:s.y*0.69}:null;};
+  function line(a,b,cls){ const A=pos(a),B=pos(b); if(!A||!B)return;
+    const mx=(A.x+B.x)/2, my=(A.y+B.y)/2 - 4;
+    const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("d",`M ${A.x} ${A.y} Q ${mx} ${my} ${B.x} ${B.y}`);
+    p.setAttribute("class",cls); svg.appendChild(p);
+  }
+  const route = ROUTES[hero.id];
+  const inRoute = route ? new Set(route) : null;
+  if(!route){ /* pełna mapa (Gość) / carte complète (Invité) */
+    for(let i=0;i<MAIN.length-1;i++) line(MAIN[i],MAIN[i+1],"main");
+    line("nice","carfamily","branch"); line("carfamily","marktoberdorf","branch");
+    line("marktoberdorf","poznan","branch"); line("poznan","gniezno","branch");
+  } else { /* tylko trasa wybranej postaci / seulement l'itinéraire du personnage */
+    for(let i=0;i<route.length-1;i++) line(route[i],route[i+1],"active");
+  }
+  S.forEach(s=>{
+    if(inRoute && !inRoute.has(s.id)) return;
+    const n=document.createElement("div");
+    n.className="node"+(s.branch?" branch":"")+(progress[s.id]?" done":"")+(isCurrent(s.id)?" current":"");
+    n.style.left=s.x+"%"; n.style.top=s.y+"%";
+    n.innerHTML=`<div class="dot">${s.ico}</div><div class="lbl">${t(s.ml)}</div>`;
+    n.onclick=()=>openStage(s.id);
+    map.appendChild(n);
+  });
+  const prn = route || S.map(s=>s.id);
+  const done = prn.filter(k=>progress[k]).length;
+  document.getElementById("prog").style.width=Math.round(done/Math.max(prn.length,1)*100)+"%";
+  const c=CHARS.find(x=>x.id===hero.id)||CHARS[0];
+  const rw=document.getElementById("routeWho"); if(rw) rw.textContent=`📍 ${t(UI.routeWho)} ${c.emoji} ${t(c.nm)}`;
+  const lb=document.getElementById("lgBranchItem"); if(lb) lb.style.display = ROUTES[hero.id] ? "none" : ""; /* legenda gałęzi tylko na pełnej mapie / légende branche seulement sur la carte complète */
+  moveHero();
+}
+function journeyRoute(){ return ROUTES[hero.id] || ROUTES.paul; }
+function journeyState(route){
+  const now=effectiveDate(); let dayIdx;
+  if(now<TRIP_START) dayIdx=0;
+  else if(now>=TRIP_END) dayIdx=route.length-1;
+  else { const ts=todayStage(); const i=ts?route.indexOf(ts):-1; dayIdx=i>=0?i:0; }
+  const target=(now<TRIP_START)?route.length-1:dayIdx; /* przed wyjazdem: zapowiedź całej trasy / avant le départ : aperçu complet */
+  return {dayIdx,target};
+}
+function isCurrent(id){ const r=journeyRoute(); return r[journeyState(r).dayIdx]===id; }
+function moveHero(){
+  const r=journeyRoute(); const s=S.find(x=>x.id===r[journeyState(r).dayIdx]); if(!s) return;
+  const hm=document.getElementById("heroMarker");
+  hm.style.left=s.x+"%"; hm.style.top=s.y+"%";
+  const c=CHARS.find(c=>c.id===hero.id)||CHARS[0];
+  avatarFill(hm, hero.id, c.emoji, {imgClass:"ava", emojiClass:"pin"});
+}
+/* Animacja: środek transportu jedzie trasą aż do etapu dnia / Animation : le transport parcourt la route jusqu'à l'étape du jour */
+let travelToken=0;
+function startTravel(){
+  const tok=++travelToken;
+  const el=document.getElementById("travelIcon"); if(!el) return;
+  const route=journeyRoute(); const {target}=journeyState(route);
+  const posOf=id=>{const s=S.find(x=>x.id===id);return s?{x:s.x,y:s.y}:null;};
+  if(!route || target<1){ el.style.opacity="0"; return; }
+  const p0=posOf(route[0]); el.style.transition="none"; el.style.left=p0.x+"%"; el.style.top=p0.y+"%"; el.style.opacity="0"; el.textContent="";
+  let i=0;
+  function seg(){
+    if(tok!==travelToken) return;
+    if(i>=target){ el.style.transition="opacity .6s"; el.style.opacity="0"; return; }
+    const from=route[i], to=route[i+1], pFrom=posOf(from), pTo=posOf(to);
+    const emoji=transportFor(from,to); el.textContent=emoji; el.style.opacity="1";
+    const dx=pTo.x-pFrom.x;                       /* kierunek jazdy / sens du déplacement */
+    const faceLeft = emoji!=="✈️";                /* auta i pociągi patrzą w lewo, samolot w prawo */
+    const flip = faceLeft ? dx>0 : dx<0;
+    el.style.transform = `translate(-50%,-50%) scaleX(${flip?-1:1})`;
+    requestAnimationFrame(()=>{ if(tok!==travelToken) return;
+      el.style.transition="left 3.5s linear, top 3.5s linear, opacity .3s";
+      el.style.left=pTo.x+"%"; el.style.top=pTo.y+"%"; });
+    i++; setTimeout(seg, 3500);
+  }
+  setTimeout(()=>{ if(tok===travelToken){ el.style.opacity="1"; seg(); } }, 500);
+}
+function relevantBadges(route){
+  const set=new Set();
+  route.forEach(id=>{ const s=S.find(x=>x.id===id); if(!s) return;
+    (s.badges||[]).forEach(b=>set.add(b));
+    const games=gamesFor(id);
+    if(games.length) set.add("b_quizmaster");
+    games.forEach(g=>{ if(g==="g_conduct") set.add("b_baton");
+      const gg=GAMES[g]; if(gg&&gg.qs) gg.qs.forEach(q=>{ if(q.bonus) set.add(q.bonus); }); });
+  });
+  return set;
+}
+function renderBadges(){
+  const wrap=document.getElementById("badges"); wrap.innerHTML="";
+  const route=ROUTES[hero.id];
+  let ids;
+  if(!route){ ids=Object.keys(BADGES); }                 /* Gość: wszystkie / Invité : tous */
+  else { const set=relevantBadges(route); ids=Object.keys(BADGES).filter(id=>set.has(id)); }
+  ids.forEach(id=>{
+    const b=BADGES[id]; const on=earned[id];
+    const d=document.createElement("div"); d.className="badge"+(on?" on":"");
+    d.innerHTML=`<span class="e">${b.e}</span><span class="n">${t(b.n)}</span>`;
+    wrap.appendChild(d);
+  });
+  const total=ids.length, got=ids.filter(k=>earned[k]).length;
+  document.getElementById("badgeCount").textContent=got+"/"+total+" "+t(UI.badgeCount);
+}
+
+/* ============================== STAGE MODAL ============================== */
+let activeTab="pInfo";
+function openStage(id, keepTab){
+  current=id; const s=S.find(x=>x.id===id);
+  document.getElementById("mIco").textContent=s.ico;
+  document.getElementById("mTitle").innerHTML=t(s.title);
+  document.getElementById("mSub").innerHTML=t(s.sub);
+  const tabsEl=document.getElementById("mTabs"); tabsEl.innerHTML="";
+  const tabs=[["pInfo",t(UI.tabInfo)],["pFacts",t(UI.tabFacts)]];
+  if(s.playlist) tabs.push(["pPlay",t(UI.tabPlaylist)]);
+  const games=gamesFor(id); const unlocked=gamesUnlocked();
+  if(games.length) tabs.push(["pGame",(unlocked?"":"🔒 ")+t(UI.tabGame)]);
+  tabs.forEach(([key,label])=>{ const b=document.createElement("div"); b.className="tab"; b.textContent=label;
+    b.onclick=()=>switchTab(key); b.dataset.k=key; tabsEl.appendChild(b); });
+  if(!keepTab || !tabs.find(x=>x[0]===activeTab)) activeTab="pInfo";
+  let info="";
+  (s.info||[]).forEach(r=> info+=`<div class="kv"><div class="k">${t(r.k)}</div><div class="v">${t(r.v)}</div></div>`);
+  if(s.todo&&s.todo.length){ info+=`<ul class="todo">`; s.todo.forEach(x=> info+=`<li>${t(x)}</li>`); info+=`</ul>`; }
+  document.getElementById("pInfo").innerHTML=info||"—";
+  let f="";
+  (s.facts||[]).forEach(x=>{ const src=x.s?` <a class="src" href="${x.s}" target="_blank" title="źródło / source">ⓘ</a>`:"";
+    f+=`<div class="fact"><span class="em">${x.e||"✨"}</span><div>${t(x)}${src}</div></div>`; });
+  if(s.story){ f+=`<div class="story"><h4>📖 ${t(s.story.title)}</h4>${t(s.story)}</div>`; }
+  document.getElementById("pFacts").innerHTML=f||"—";
+  if(s.playlist){ let ph=`<p class="pl-intro">${t(UI.playlistIntro)}</p>`;
+    s.playlist.forEach(it=>{ const q=encodeURIComponent(it.q);
+      ph+=`<div class="pl-row"><div class="pl-w"><b>${it.c}</b> — ${t(it.w)}</div>`+
+          `<a class="pl-link yt" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${q}">${t(UI.listenYT)}</a>`+
+          `<a class="pl-link sp" target="_blank" rel="noopener" href="https://open.spotify.com/search/${q}">${t(UI.listenSP)}</a></div>`; });
+    document.getElementById("pPlay").innerHTML=ph;
+  } else document.getElementById("pPlay").innerHTML="";
+  if(!games.length){ document.getElementById("pGame").innerHTML = `<p class="hint">${t(UI.noGame)}</p>`; }
+  else if(!unlocked){ document.getElementById("pGame").innerHTML = `<div class="story"><h4>${t(UI.gamesLockedTitle)}</h4>${t(UI.gamesLockedMsg)}</div>`; }
+  else { document.getElementById("pGame").innerHTML=""; renderGames(id, games); }
+  const dn=progress[id];
+  const btn=document.getElementById("doneBtn"); btn.onclick=()=>markDone(id);
+  btn.querySelector("span").textContent = dn? t(UI.alreadyDone) : t(UI.markDone);
+  const be=document.getElementById("badgeEarn");
+  const blist=(s.badges||[]).map(b=>BADGES[b]?BADGES[b].e+" "+t(BADGES[b].n):"").filter(Boolean).join(" • ");
+  be.innerHTML = blist? `${t(UI.badgeGet)} <b>${blist}</b>` : "";
+  switchTab(activeTab);
+  document.getElementById("ov").classList.add("open");
+}
+function switchTab(key){ activeTab=key;
+  document.querySelectorAll("#mTabs .tab").forEach(b=>b.classList.toggle("on",b.dataset.k===key));
+  ["pInfo","pFacts","pPlay","pGame"].forEach(p=>document.getElementById(p).classList.toggle("on",p===key));
+}
+function closeModal(){ document.getElementById("ov").classList.remove("open"); current=null; }
+function markDone(id){
+  const s=S.find(x=>x.id===id); const was=progress[id];
+  progress[id]=true; (s.badges||[]).forEach(b=>earned[b]=true);
+  if(MAIN.every(m=>progress[m])) earned.b_europe=true;
+  save(); renderMap(); renderBadges();
+  document.getElementById("doneBtn").querySelector("span").textContent=t(UI.alreadyDone);
+  if(!was) toast(t(UI.doneToast));
+  moveHero();
+}
+
+/* ============================== GAMES ENGINE ============================== */
+function gamesFor(id){ const g=EXTRA_GAMES[id]; if(g) return g.slice(); const s=S.find(x=>x.id===id); return s&&s.game?[s.game]:[]; }
+function renderGames(stageId, ids){
+  const host=document.getElementById("pGame"); host.innerHTML="";
+  ids.forEach(gid=>{ const g=GAMES[gid]; if(!g)return; const box=document.createElement("div"); box.className="game";
+    box.innerHTML=`<h4>${({quiz:"🎯",tf:"⚖️",match:"🔗",slider:"📏",tap:"🪄"})[g.type]||"🎮"} ${t(g.title)}</h4>`;
+    host.appendChild(box);
+    if(g.type==="quiz") renderQuiz(box,g);
+    else if(g.type==="tf") renderTF(box,g);
+    else if(g.type==="match") renderMatch(box,g);
+    else if(g.type==="slider") renderSlider(box,g);
+    else if(g.type==="tap") renderTap(box,g);
+  });
+}
+function renderQuiz(box,g){
+  let score=0, answered=0;
+  g.qs.forEach((q,qi)=>{
+    const qd=document.createElement("div"); qd.className="q";
+    qd.innerHTML=`<div class="qtext">${qi+1}. ${t(q.q)}</div>`;
+    q.o.forEach((opt,oi)=>{
+      const b=document.createElement("button"); b.className="opt"; b.innerHTML=t(opt);
+      b.onclick=()=>{
+        if(qd.dataset.done) return; qd.dataset.done="1"; answered++;
+        if(oi===q.c){ b.classList.add("correct"); score++; }
+        else { b.classList.add("wrong"); [...qd.querySelectorAll(".opt")][q.c].classList.add("correct"); }
+        qd.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+        if(answered===g.qs.length) finishQuiz(box,score,g);
+      };
+      qd.appendChild(b);
+    });
+    box.appendChild(qd);
+  });
+}
+function finishQuiz(box,score,g){
+  const sb=document.createElement("div"); sb.className="scorebox";
+  const perfect=score===g.qs.length;
+  sb.innerHTML=`${t(UI.score)}: <b>${score}/${g.qs.length}</b> ${perfect?"<br>"+t(UI.perfect):""}`;
+  box.appendChild(sb);
+  if(perfect) earned.b_quizmaster=true;
+  g.qs.forEach(q=>{ if(q.bonus) earned[q.bonus]=true; });
+  save(); renderBadges();
+  if(perfect) toast("🏅 "+t(BADGES.b_quizmaster.n));
+}
+function renderTF(box,g){
+  let score=0, answered=0;
+  g.qs.forEach((q)=>{
+    const qd=document.createElement("div"); qd.className="q";
+    qd.innerHTML=`<div class="qtext">${t(q.s)}</div>`;
+    const row=document.createElement("div"); row.className="tf";
+    [["true",t(UI.trueW)],["false",t(UI.falseW)]].forEach(([val,label])=>{
+      const b=document.createElement("button"); b.textContent=label;
+      b.onclick=()=>{ if(qd.dataset.done)return; qd.dataset.done="1"; answered++;
+        const ok=((val==="true")===q.a);
+        b.style.background=ok?"rgba(58,107,52,.25)":"rgba(178,58,46,.2)";
+        b.style.borderColor=ok?"var(--good)":"var(--bad)"; b.style.color=ok?"var(--good)":"var(--bad)";
+        if(ok) score++;
+        if(q.note){ const fb=document.createElement("div"); fb.className="feedback"; fb.innerHTML=(ok?"✅ ":"❌ ")+t(q.note); qd.appendChild(fb);}
+        else if(!ok){ const fb=document.createElement("div"); fb.className="feedback"; fb.textContent="❌"; qd.appendChild(fb);}
+        row.querySelectorAll("button").forEach(x=>x.disabled=true);
+        if(answered===g.qs.length){ const sb=document.createElement("div"); sb.className="scorebox";
+          sb.innerHTML=`${t(UI.score)}: <b>${score}/${g.qs.length}</b>`; box.appendChild(sb);
+          if(score===g.qs.length){ earned.b_quizmaster=true; save(); renderBadges(); } }
+      };
+      row.appendChild(b);
+    });
+    qd.appendChild(row); box.appendChild(qd);
+  });
+}
+function renderMatch(box,g){
+  const wrap=document.createElement("div"); wrap.className="matchgrid";
+  const left=document.createElement("div"); left.className="matchcol";
+  const right=document.createElement("div"); right.className="matchcol";
+  const rIdx=g.pairs.map((_,i)=>i); for(let i=rIdx.length-1;i>0;i--){const j=(i*7+3)%(i+1);[rIdx[i],rIdx[j]]=[rIdx[j],rIdx[i]];}
+  let sel=null, matched=0;
+  g.pairs.forEach((p,i)=>{ const l=document.createElement("div"); l.className="mitem"; l.textContent=p.a; l.dataset.i=i; l.dataset.side="l";
+    l.onclick=()=>pick(l); left.appendChild(l); });
+  rIdx.forEach(i=>{ const p=g.pairs[i]; const r=document.createElement("div"); r.className="mitem"; r.textContent=t(p.b); r.dataset.i=i; r.dataset.side="r";
+    r.onclick=()=>pick(r); right.appendChild(r); });
+  function pick(el){ if(el.classList.contains("matched")) return;
+    if(!sel){ sel=el; el.classList.add("sel"); return; }
+    if(sel.dataset.side===el.dataset.side){ sel.classList.remove("sel"); sel=el; el.classList.add("sel"); return; }
+    if(sel.dataset.i===el.dataset.i){ sel.classList.remove("sel"); sel.classList.add("matched"); el.classList.add("matched"); sel=null; matched++;
+      if(matched===g.pairs.length){ const sb=document.createElement("div"); sb.className="scorebox"; sb.innerHTML=t(UI.perfect); box.appendChild(sb);
+        earned.b_quizmaster=true; save(); renderBadges(); } }
+    else { const a=sel, b=el; a.style.borderColor="var(--bad)"; b.style.borderColor="var(--bad)";
+      setTimeout(()=>{a.style.borderColor="";b.style.borderColor="";a.classList.remove("sel");},500); sel=null; }
+  }
+  wrap.appendChild(left); wrap.appendChild(right); box.appendChild(wrap);
+}
+function renderSlider(box,g){
+  const d=document.createElement("div"); d.className="slider-game";
+  const val=document.createElement("div"); val.className="slider-val";
+  const r=document.createElement("input"); r.type="range"; r.min=g.min; r.max=g.max; r.step=g.step; r.value=Math.round((g.min+g.max)/2);
+  val.textContent=r.value+" "+g.unit;
+  r.oninput=()=>val.textContent=r.value+" "+g.unit;
+  const btn=document.createElement("button"); btn.className="btn"; btn.textContent=t(UI.check);
+  d.innerHTML=`<div class="qtext">${t(g.q)}</div>`;
+  d.appendChild(val); d.appendChild(r); d.appendChild(btn);
+  btn.onclick=()=>{ const guess=+r.value, diff=Math.abs(guess-g.answer);
+    const sb=document.createElement("div"); sb.className="scorebox"; const ok=diff<=g.tol;
+    sb.innerHTML=(ok?t(UI.spot):`${t(UI.diffOff)} ${diff} ${g.unit}`)+`<br>✅ ${g.answer} ${g.unit}<br><span class="feedback">${t(g.after)}</span>`;
+    d.appendChild(sb); btn.disabled=true; r.disabled=true;
+    if(ok){ earned.b_quizmaster=true; save(); renderBadges(); }
+  };
+  box.appendChild(d);
+}
+
+function renderTap(box,g){
+  const d=document.createElement("div"); d.style.textAlign="center";
+  d.innerHTML=`<div class="qtext" style="text-align:left">${t(g.q)}</div>`;
+  const val=document.createElement("div"); val.className="slider-val"; val.textContent="— BPM";
+  const term=document.createElement("div"); term.style.fontStyle="italic"; term.style.color="var(--ink2)"; term.style.minHeight="1.4em"; term.textContent=t(g.waiting);
+  const tapBtn=document.createElement("button"); tapBtn.className="btn gold"; tapBtn.style.width="100%"; tapBtn.style.fontSize="1.15rem"; tapBtn.style.padding="18px"; tapBtn.style.marginTop="6px"; tapBtn.innerHTML=t(g.tapLabel);
+  const reset=document.createElement("button"); reset.className="btn"; reset.style.marginTop="8px"; reset.textContent=t(g.resetLabel);
+  let times=[];
+  tapBtn.onclick=()=>{ const now=Date.now(); times.push(now); if(times.length>8) times=times.slice(-8);
+    if(times.length>=2){ let sum=0; for(let i=1;i<times.length;i++) sum+=times[i]-times[i-1]; const avg=sum/(times.length-1); const bpm=Math.round(60000/avg);
+      val.textContent=bpm+" BPM"; const tm=tempoTerm(bpm); term.innerHTML="<b>"+tm.name+"</b> — "+t(tm);
+      if(times.length>=4 && !earned.b_baton){ earned.b_baton=true; save(); renderBadges(); toast("🏅 "+t(BADGES.b_baton.n)); } }
+  };
+  reset.onclick=()=>{ times=[]; val.textContent="— BPM"; term.textContent=t(g.waiting); };
+  d.appendChild(val); d.appendChild(term); d.appendChild(tapBtn); d.appendChild(document.createElement("br")); d.appendChild(reset);
+  box.appendChild(d);
+}
+function tempoTerm(b){
+  if(b<60) return {name:"Largo", pl:"bardzo wolno i dostojnie",fr:"très lent et large"};
+  if(b<72) return {name:"Adagio", pl:"wolno",fr:"lent"};
+  if(b<92) return {name:"Andante", pl:"spokojnym krokiem",fr:"allure tranquille"};
+  if(b<112) return {name:"Moderato", pl:"umiarkowanie",fr:"modéré"};
+  if(b<138) return {name:"Allegro", pl:"szybko i wesoło",fr:"vif et gai"};
+  if(b<168) return {name:"Vivace", pl:"żywo",fr:"vif"};
+  return {name:"Presto", pl:"bardzo szybko!",fr:"très rapide !"};
+}
+
+/* ============================== CHARACTER ============================== */
+/* Awatar: zdjęcie z przeglądarki → zdjęcie z photos/<id>.jpg → emoji
+   Avatar : photo locale → photos/<id>.jpg → emoji */
+function avatarFill(el, id, emoji, opts){ opts=opts||{};
+  const setEmoji=()=>{ if(opts.emojiClass){ const s=document.createElement("span"); s.className=opts.emojiClass; s.textContent=emoji; el.replaceChildren(s);} else el.replaceChildren(document.createTextNode(emoji)); };
+  const ph=photos[id];
+  if(!ph && !USE_FOLDER_PHOTOS){ setEmoji(); return; }
+  const img=document.createElement("img"); if(opts.imgClass) img.className=opts.imgClass; img.alt="";
+  img.onerror=setEmoji;
+  img.src = ph ? ph : "photos/"+id+".jpg";
+  el.replaceChildren(img);
+}
+function renderChars(){
+  const w=document.getElementById("charWrap"); w.innerHTML="";
+  CHARS.forEach(c=>{
+    const d=document.createElement("div"); d.className="char"+(hero.id===c.id?" sel":"");
+    const ph=photos[c.id];
+    d.innerHTML=`<div class="ava"></div>
+      <div class="nm">${t(c.nm)}</div><div class="ro">${t(c.ro)}</div>
+      <span class="up">${ph?t(UI.removePhoto):t(UI.uploadPhoto)}</span>`;
+    avatarFill(d.querySelector(".ava"), c.id, c.emoji, {});
+    const choose=()=>{ hero={id:c.id}; localStorage.setItem("vy_hero",JSON.stringify(hero)); document.getElementById("ovChar").classList.remove("open"); renderChars(); renderMap(); renderBadges(); updateHeroPill(); startTravel(); };
+    d.onclick=choose;  /* cała karta klikalna / toute la carte cliquable */
+    d.querySelector(".up").onclick=(e)=>{ e.stopPropagation();
+      if(photos[c.id]){ delete photos[c.id]; localStorage.setItem("vy_photos",JSON.stringify(photos)); renderChars(); moveHero(); updateHeroPill(); return; }
+      const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
+      inp.onchange=()=>{ const f=inp.files[0]; if(!f)return; const rd=new FileReader();
+        rd.onload=()=>{ resizeImg(rd.result, 240, (data)=>{ photos[c.id]=data; localStorage.setItem("vy_photos",JSON.stringify(photos)); renderChars(); moveHero(); updateHeroPill(); }); };
+        rd.readAsDataURL(f); };
+      inp.click();
+    };
+    w.appendChild(d);
+  });
+}
+function resizeImg(src,max,cb){ const img=new Image(); img.onload=()=>{ let w=img.width,h=img.height;
+  const sc=Math.min(max/w,max/h,1); const cw=Math.round(w*sc), ch=Math.round(h*sc);
+  const cnv=document.createElement("canvas"); cnv.width=cw; cnv.height=ch; cnv.getContext("2d").drawImage(img,0,0,cw,ch);
+  cb(cnv.toDataURL("image/jpeg",0.82)); }; img.src=src; }
+function updateHeroPill(){ const c=CHARS.find(x=>x.id===hero.id)||CHARS[0];
+  const btn=document.getElementById("charBtn");
+  btn.innerHTML=`<span class="pillava"></span> ${t(c.nm)}`;
+  avatarFill(btn.querySelector(".pillava"), c.id, c.emoji, {imgClass:"pillimg"}); }
+
+/* ============================== INIT ============================== */
+document.getElementById("charBtn").onclick=()=>{ renderChars(); document.getElementById("ovChar").classList.add("open"); };
+document.getElementById("dayBtn").onclick=()=>{ const id=todayStage(); if(id){ openStage(id); } else { toast(t(UI.todayMsgBefore)); openStage(MAIN.find(m=>!progress[m])||"paris"); } };
+document.getElementById("ov").onclick=(e)=>{ if(e.target.id==="ov") closeModal(); };
+document.getElementById("ovChar").onclick=(e)=>{ if(e.target.id==="ovChar") e.currentTarget.classList.remove("open"); };
+let toastTimer; function toast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2600); }
+
+setLang(LANG); renderBadges(); updateHeroPill();
+/* Wskaźnik trybu DEV / Indicateur du mode dev */
+if(DEV){ const p=document.createElement("div"); p.className="pill"; p.style.borderColor="var(--stamp)"; p.style.color="var(--stamp)";
+  p.textContent="⚙️ DEV"; p.title="Tryb deweloperski: wszystkie gry odblokowane (kliknij, by wyłączyć)";
+  p.onclick=()=>{ DEV=false; localStorage.removeItem("vy_dev"); p.remove();
+    try{ const u=new URL(location.href); u.searchParams.delete("dev"); history.replaceState(null,"",u.toString()); }catch(e){}
+    renderMap(); if(current) openStage(current,true); toast(t(UI.devOff)); };
+  document.querySelector(".lang").insertAdjacentElement("beforebegin", p); }
+/* Otwarcie startowe: wybór bohatera (pierwszy raz) lub etap dnia (w trakcie wyprawy)
+   Ouverture initiale : choix du héros (1ʳᵉ fois) ou étape du jour (pendant le voyage) */
+(function(){
+  const dayParam=new URLSearchParams(location.search).get("day");
+  const ts=todayStage();
+  if(dayParam && ts){ openStage(ts); }
+  else if(!localStorage.getItem("vy_hero")){ renderChars(); document.getElementById("ovChar").classList.add("open"); }
+  else if(ts){ openStage(ts); }
+})();
+startTravel();
+</script>
+</body>
+</html>
